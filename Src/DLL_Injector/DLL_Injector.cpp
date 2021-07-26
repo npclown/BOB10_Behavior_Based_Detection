@@ -41,7 +41,7 @@ bool process_name_to_pid(
 	if (snapshot != INVALID_HANDLE_VALUE) {
 		Process32First(snapshot, &entry);
 		do {
-			// ÇÁ·Î¼¼½º¸¦ ¼û°ÜÁÖ´Â ÄÚµåÀÌ´Ù. (-> tchar.h)
+			// í”„ë¡œì„¸ìŠ¤ë¥¼ ìˆ¨ê²¨ì£¼ëŠ” ì½”ë“œì´ë‹¤. (-> tchar.h)
 			if (!_tcsicmp(process_name.c_str(), 
 				entry.szExeFile)) {
 				pid = entry.th32ProcessID;

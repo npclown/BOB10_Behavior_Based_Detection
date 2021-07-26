@@ -4,7 +4,7 @@
 #include <TlHelp32.h>
 #include <tchar.h>
 
-#include <string>
+#include <String>
 
 bool process_name_to_pid(
 	__out DWORD& pid,
@@ -18,8 +18,8 @@ bool dll_injection(
 
 int main() {
 	DWORD pid = 0;
-	std::wstring process_name = L"notepad.exe";
-	std::wstring dll_name = L"../zwCreateFolder_Hooker/";
+	std::wstring process_name = L"explorer.exe";
+	std::wstring dll_name = L"zwCreateFile_Hooker.dll";
 
 	if (process_name_to_pid(pid, process_name)) {
 		dll_injection(pid, dll_name);

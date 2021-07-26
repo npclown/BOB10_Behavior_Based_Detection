@@ -5,4 +5,7 @@
       <UniqueIdentifier>{513a32fb-4524-4093-9e1c-ce09129fa63e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="DLL_Injector.cpp" />
+  </ItemGroup>
 </Project>

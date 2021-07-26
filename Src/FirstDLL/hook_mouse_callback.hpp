@@ -1,8 +1,8 @@
 ﻿#pragma once
-#include "pch.h"
-#define WIN32_LEAN_AND_MEAN             // 거의 사용되지 않는 내용을 Windows 헤더에서 제외합니다.
-// Windows 헤더 파일
+#include "hook_mouse_callback.hpp"
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <mutex>
 
 class hook_mouse_callback {
 private:

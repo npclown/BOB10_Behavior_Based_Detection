@@ -4,7 +4,7 @@
 #include <TlHelp32.h>
 #include <tchar.h>
 
-#include <String>
+#include <string>
 
 bool process_name_to_pid(
 	__out DWORD& pid,

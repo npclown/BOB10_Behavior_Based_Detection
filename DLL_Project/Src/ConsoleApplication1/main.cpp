@@ -6,13 +6,13 @@ bool process_name_to_pid(__out DWORD& pid, __in const std::wstring& process_name
 bool dll_injection(__in DWORD& pid, __in const std::wstring& dll_name);
 
 int main() {
-	DWORD pid = 0;
-	std::wstring process_name = L"explorer.exe";
-	std::wstring dll_name = L"C:\\Users\\bob\\source\\repos\\Project\\Build\\Win32Debug\\Dll1.dll";
+	DWORD pid = 7796;
+	std::wstring process_name = L"notepad.exe";
+	std::wstring dll_name = L"C:\\Users\\bob\\Desktop\\BOB10_Behavior_Based_Detection\\DLL_Project\\Build\\Win32Debug\\hook.dll";
 
-	if (process_name_to_pid(pid, process_name)) {
+	//if (process_name_to_pid(pid, process_name)) {
 		dll_injection(pid, dll_name);
-	}
+	//}
 }
 
 bool process_name_to_pid(__out DWORD& pid, __in const std::wstring& process_name) {

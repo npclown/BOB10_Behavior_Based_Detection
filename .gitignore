@@ -1,2 +1,3 @@
-Build
-Output
+Build/*
+Output/*
+.vs

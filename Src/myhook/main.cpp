@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #include "stdafx.h"
-#include "createprocessw.h"
+#include "createprocess.h"
 
 #pragma pack(push, 1)
 struct JMP_5Bytes
@@ -188,9 +188,11 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
     case DLL_PROCESS_ATTACH:
         DebugLog("DllMain() : DLL_PROCESS_ATTACH\n");
         hook_by_code("kernel32.dll", "CreateProcessW", (LPVOID)((DWORD)&NewCreateProcessW), OrgFP);
+        hook_by_code("kernel32.dll", "CreateProcessA", (LPVOID)((DWORD)&NewCreateProcessA), OrgFP);
         break;
     case DLL_PROCESS_DETACH:
         unhook_by_code("kernel32.dll", "CreateProcessW", (LPVOID)((DWORD)&NewCreateProcessW), OrgFP);
+        unhook_by_code("kernel32.dll", "CreateProcessA", (LPVOID)((DWORD)&NewCreateProcessA), OrgFP);
         DebugLog("DllMain() : DLL_PROCESS_DETACH\n");
         break;
     }

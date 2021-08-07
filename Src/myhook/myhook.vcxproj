@@ -167,7 +167,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="createprocessw.h" />
+    <ClInclude Include="createprocess.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>

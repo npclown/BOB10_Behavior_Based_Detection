@@ -6,7 +6,7 @@ bool process_name_to_pid(__out DWORD& pid, __in const std::wstring& process_name
 bool dll_injection(__in DWORD& pid, __in const std::wstring& dll_name);
 
 int main() {
-	DWORD pid = 7796;
+	DWORD pid = 0;
 	std::wstring process_name = L"cmd.exe";
 	std::wstring dll_name = L"myhook.dll";
 

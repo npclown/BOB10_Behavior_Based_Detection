@@ -7,12 +7,18 @@ bool dll_injection(__in DWORD& pid, __in const std::wstring& dll_name);
 
 int main() {
 	DWORD pid = 0;
+
 	std::wstring process_name = L"cmd.exe";
 	std::wstring dll_name = L"myhook.dll";
 
 	if (process_name_to_pid(pid, process_name)) {
-		dll_injection(pid, dll_name);
+		if (dll_injection(pid, dll_name)) {
+			printf("Injection Complete\n");
+			return 0;
+		}
 	}
+	printf("Injection Not Complete\n");
+	return -1;
 }
 
 bool process_name_to_pid(__out DWORD& pid, __in const std::wstring& process_name) {

@@ -1,4 +1,4 @@
-
+﻿
 // The MIT License
 
 // Copyright (c) 2019 Sanghyeon Jeon
@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #include "stdafx.h"
+#include "createprocess.h"
 
 #pragma pack(push, 1)
 struct JMP_5Bytes
@@ -31,100 +32,150 @@ struct JMP_5Bytes
 };
 #pragma pack(pop)
 
-
-const char* OrgFP = "\x8B\xFF\x55\x8B\xEC"; // MOV EDI, EDI; PUSH EBP; MOV EBP, ESP;
-const char* FPandJmp5Bytes = "\x55\x8B\xEC\xEB\x05"; // PUSH EBP; MOV EBP, ESP; JMP $(Current)+0x5;
-
-typedef BOOL WINAPI tWriteFile(
-    _In_        HANDLE       hFile,
-    _In_        LPCVOID      lpBuffer,
-    _In_        DWORD        nNumberOfBytesToWrite,
-    _Out_opt_   LPDWORD      lpNumberOfBytesWritten,
-    _Inout_opt_ LPOVERLAPPED lpOverlapped
-);
-
-DWORD WINAPI Hook32();
-DWORD WINAPI Unhook32();
-
-tWriteFile* newWriteFile;
-tWriteFile* orgWriteFile;
 BOOL Hooked = FALSE;
 
-BOOL WINAPI NewWriteFile(
-    _In_        HANDLE       hFile,
-    _In_        LPCVOID      lpBuffer,
-    _In_        DWORD        nNumberOfBytesToWrite,
-    _Out_opt_   LPDWORD      lpNumberOfBytesWritten,
-    _Inout_opt_ LPOVERLAPPED lpOverlapped
-)
+//For checking the debugging log
+void DebugLog(const char* format, ...)
 {
-    if (nNumberOfBytesToWrite > 0)
-        MessageBoxA(NULL, (LPCSTR)lpBuffer, NULL, NULL);
+    va_list vl;
+    FILE* pf = NULL;
+    char szLog[512] = { 0, };
 
-    MessageBoxA(NULL, "NewWriteFile", "NewWriteFile", MB_OK);
-    Unhook32();
-    BOOL ret = WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped);
-    Hook32();
+    va_start(vl, format);
+    wsprintfA(szLog, format, vl);
+    va_end(vl);
 
-    return ret;
+    OutputDebugStringA(szLog);
 }
 
-DWORD WINAPI Hook32()
+BOOL SetPrivilege(LPCTSTR lpszPrivilege, BOOL bEnablePrivilege)
+{
+    TOKEN_PRIVILEGES tp;
+    HANDLE hToken;
+    LUID luid;
+
+    if (!OpenProcessToken(GetCurrentProcess(),
+        TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY,
+        &hToken))
+    {
+        DebugLog("OpenProcessToken error: %u\n", GetLastError());
+        return FALSE;
+    }
+
+    if (!LookupPrivilegeValue(NULL,             // lookup privilege on local system
+        lpszPrivilege,    // privilege to lookup 
+        &luid))          // receives LUID of privilege
+    {
+        DebugLog("LookupPrivilegeValue error: %u\n", GetLastError());
+        return FALSE;
+    }
+
+    tp.PrivilegeCount = 1;
+    tp.Privileges[0].Luid = luid;
+    if (bEnablePrivilege)
+        tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+    else
+        tp.Privileges[0].Attributes = 0;
+
+    // Enable the privilege or disable all privileges.
+    if (!AdjustTokenPrivileges(hToken,
+        FALSE,
+        &tp,
+        sizeof(TOKEN_PRIVILEGES),
+        (PTOKEN_PRIVILEGES)NULL,
+        (PDWORD)NULL))
+    {
+        DebugLog("AdjustTokenPrivileges error: %u\n", GetLastError());
+        return FALSE;
+    }
+
+    if (GetLastError() == ERROR_NOT_ALL_ASSIGNED)
+    {
+        DebugLog("The token does not have the specified privilege. \n");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL InjectDll(HANDLE hProcess, LPCTSTR szDllName)
+{
+    HANDLE hThread;
+    LPVOID pRemoteBuf;
+    DWORD dwBufSize = (DWORD)(_tcslen(szDllName) + 1) * sizeof(TCHAR);
+    FARPROC pThreadProc;
+
+    pRemoteBuf = VirtualAllocEx(hProcess, NULL, dwBufSize,
+        MEM_COMMIT, PAGE_READWRITE);
+    if (pRemoteBuf == NULL)
+        return FALSE;
+
+    WriteProcessMemory(hProcess, pRemoteBuf, (LPVOID)szDllName,
+        dwBufSize, NULL);
+
+    pThreadProc = GetProcAddress(GetModuleHandleA("kernel32.dll"),
+        "LoadLibraryW");
+    hThread = CreateRemoteThread(hProcess, NULL, 0,
+        (LPTHREAD_START_ROUTINE)pThreadProc,
+        pRemoteBuf, 0, NULL);
+    WaitForSingleObject(hThread, INFINITE);
+
+    VirtualFreeEx(hProcess, pRemoteBuf, 0, MEM_RELEASE);
+
+    CloseHandle(hThread);
+
+    return TRUE;
+}
+
+DWORD WINAPI hook_by_code(LPCSTR szDllName, LPCSTR apiName, LPVOID newApiName, const char* orgByte)
 {
     if (Hooked)
         return 0; // Already Hooked
-
+    
     // Get address of target function
     LPVOID lpOrgFunc = NULL;
-    if ((lpOrgFunc = GetProcAddress(GetModuleHandleA("kernel32.dll"), "WriteFile")) == NULL)
+    if ((lpOrgFunc = (LPVOID)GetProcAddress(GetModuleHandleA(szDllName), apiName)) == NULL)
         return -1;
-
-    // Inline Hook
-    orgWriteFile = (tWriteFile*)((DWORD)lpOrgFunc - 5);
 
     // Backup old protect
     DWORD dwOldProtect;
-    if (VirtualProtect((LPVOID)((DWORD)lpOrgFunc - 5), 10, PAGE_EXECUTE_READWRITE, &dwOldProtect) == NULL)
+    if (VirtualProtect((LPVOID)((DWORD)lpOrgFunc-5), 7, PAGE_EXECUTE_READWRITE, &dwOldProtect) == NULL)
         return -1;
 
     JMP_5Bytes newFuncObj;
     newFuncObj.opcode = 0xE9; // Relative Jump
-    newFuncObj.lpTarget = (LPVOID)((DWORD)(&NewWriteFile) - (DWORD)lpOrgFunc - 5); // Set new functon to replace
+    newFuncObj.lpTarget = (LPVOID)((DWORD)(newApiName) - (DWORD)lpOrgFunc); // Set new functon to replace
 
-    memcpy_s((LPVOID)((DWORD)lpOrgFunc - 5), 5, FPandJmp5Bytes, 5);// Replacing
-    memcpy_s(lpOrgFunc, 5, &newFuncObj, 5);
+    memcpy_s((LPVOID)((DWORD)lpOrgFunc-5), 5, &newFuncObj, 5);
+    memcpy_s(lpOrgFunc, 2, "\xEB\xF9", 2);
 
     // Rollback protection
-    VirtualProtect((LPVOID)((DWORD)lpOrgFunc - 5), 10, dwOldProtect, NULL);
+    VirtualProtect((LPVOID)((DWORD)lpOrgFunc - 5), 7, dwOldProtect, NULL);
 
     Hooked = TRUE;
     return 0;
 }
 
-DWORD WINAPI Unhook32()
+DWORD WINAPI unhook_by_code(LPCSTR szDllName, LPCSTR apiName, LPVOID newApiName, const char* orgByte)
 {
     if (!Hooked)
         return 0; // Not Hooked
 
     LPVOID lpOrgFunc = NULL;
-    if ((lpOrgFunc = GetProcAddress(GetModuleHandleA("kernel32.dll"), "WriteFile")) == NULL)
+    if ((lpOrgFunc = (LPVOID)GetProcAddress(GetModuleHandleA(szDllName), apiName)) == NULL)
         return -1;
 
     // Inline Hook
     // Backup old protect
     DWORD dwOldProtect;
-    if (VirtualProtect((LPVOID)((DWORD)lpOrgFunc - 5), 10, PAGE_EXECUTE_READWRITE, &dwOldProtect) == NULL)
+    if (VirtualProtect((LPVOID)((DWORD)lpOrgFunc - 5), 7, PAGE_EXECUTE_READWRITE, &dwOldProtect) == NULL)
         return -1;
 
-    JMP_5Bytes newFuncObj;
-    newFuncObj.opcode = 0xE9; // Relative Jump
-    newFuncObj.lpTarget = (LPVOID)((DWORD)(&NewWriteFile) - (DWORD)lpOrgFunc - 5); // Set new functon to replace
-
-    memset((tWriteFile*)((DWORD)lpOrgFunc - 5), 0x90, 5);// Set 5-byte NOP
-    memcpy_s(lpOrgFunc, 5, OrgFP, 5);
+    memcpy_s((LPVOID)((DWORD)lpOrgFunc - 5), 5, "\x90\x90\x90\x90\x90", 5);
+    memcpy_s(lpOrgFunc, 2, "\x8B\xFF", 2);
 
     // Rollback protection
-    VirtualProtect((LPVOID)((DWORD)lpOrgFunc - 5), 10, dwOldProtect, NULL);
+    VirtualProtect((LPVOID)((DWORD)lpOrgFunc - 5), 7, dwOldProtect, NULL);
 
     Hooked = FALSE;
     return 0;
@@ -135,10 +186,14 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
-        MessageBoxA(NULL, "Hook Ready", "Hook Ready", MB_OK);
-        Hook32();
+        DebugLog("DllMain() : DLL_PROCESS_ATTACH\n");
+        hook_by_code("kernel32.dll", "CreateProcessW", (LPVOID)((DWORD)&NewCreateProcessW), OrgFP);
+        hook_by_code("kernel32.dll", "CreateProcessA", (LPVOID)((DWORD)&NewCreateProcessA), OrgFP);
         break;
     case DLL_PROCESS_DETACH:
+        unhook_by_code("kernel32.dll", "CreateProcessW", (LPVOID)((DWORD)&NewCreateProcessW), OrgFP);
+        unhook_by_code("kernel32.dll", "CreateProcessA", (LPVOID)((DWORD)&NewCreateProcessA), OrgFP);
+        DebugLog("DllMain() : DLL_PROCESS_DETACH\n");
         break;
     }
     return TRUE;

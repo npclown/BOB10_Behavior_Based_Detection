@@ -6,13 +6,19 @@ bool process_name_to_pid(__out DWORD& pid, __in const std::wstring& process_name
 bool dll_injection(__in DWORD& pid, __in const std::wstring& dll_name);
 
 int main() {
-	DWORD pid = 7796;
-	std::wstring process_name = L"notepad.exe";
-	std::wstring dll_name = L"C:\\Users\\bob\\Desktop\\WinAPI_Hooking_Project\\Build\\Win32Debug\\myhook.dll";
+	DWORD pid = 0;
+
+	std::wstring process_name = L"cmd.exe";
+	std::wstring dll_name = L"myhook.dll";
 
 	if (process_name_to_pid(pid, process_name)) {
-		dll_injection(pid, dll_name);
+		if (dll_injection(pid, dll_name)) {
+			printf("Injection Complete\n");
+			return 0;
+		}
 	}
+	printf("Injection Not Complete\n");
+	return -1;
 }
 
 bool process_name_to_pid(__out DWORD& pid, __in const std::wstring& process_name) {
@@ -22,12 +28,10 @@ bool process_name_to_pid(__out DWORD& pid, __in const std::wstring& process_name
 
 	entry.dwSize = sizeof(PROCESSENTRY32);
 	snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, 0);  //tlhelp32.h,  kernel32.dll
-	printf("%d\n", entry.dwSize);
 
 	if (snapshot != INVALID_HANDLE_VALUE) {
 		Process32First(snapshot, &entry);	//tlhelp32.h,  kernel32.dll
 		do {
-			std::cout << process_name.c_str() << std::endl;
 			if (!_tcsicmp(process_name.c_str(), entry.szExeFile)) {	//<string.h> ¶Ç´Â <wchar.h>
 				pid = entry.th32ProcessID;
 				result = true;

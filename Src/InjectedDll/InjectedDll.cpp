@@ -1,27 +1,8 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 
-typedef unsigned long		DWORD;
+enum { INJECTION_MODE = 0, EJECTION_MODE };
 
-bool process_name_to_pid(__out DWORD& pid, __in const std::wstring& process_name);
-bool dll_injection(__in DWORD& pid, __in const std::wstring& dll_name);
-
-int main() {
-	DWORD pid = 0;
-
-	std::wstring process_name = L"cmd.exe";
-	std::wstring dll_name = L"myhook.dll";
-
-	if (process_name_to_pid(pid, process_name)) {
-		if (dll_injection(pid, dll_name)) {
-			printf("Injection Complete\n");
-			return 0;
-		}
-	}
-	printf("Injection Not Complete\n");
-	return -1;
-}
-
-bool process_name_to_pid(__out DWORD& pid, __in const std::wstring& process_name) {
+BOOL process_name_to_pid(__out DWORD& pid, __in const std::wstring& process_name) {
 	bool result = false;
 	HANDLE snapshot = nullptr;
 	PROCESSENTRY32 entry = {};
@@ -32,7 +13,7 @@ bool process_name_to_pid(__out DWORD& pid, __in const std::wstring& process_name
 	if (snapshot != INVALID_HANDLE_VALUE) {
 		Process32First(snapshot, &entry);	//tlhelp32.h,  kernel32.dll
 		do {
-			if (!_tcsicmp(process_name.c_str(), entry.szExeFile)) {	//<string.h> ¶Ç´Â <wchar.h>
+			if (!_tcsicmp(process_name.c_str(), entry.szExeFile)) {	//<string.h> Â¶Ã‡Â´Ã‚ <wchar.h>
 				pid = entry.th32ProcessID;
 				result = true;
 				break;
@@ -45,43 +26,190 @@ bool process_name_to_pid(__out DWORD& pid, __in const std::wstring& process_name
 	return result;
 }
 
-bool dll_injection(__in DWORD& pid, __in const std::wstring& dll_name) {
-	bool result = false;
+BOOL SetPrivilege(LPCTSTR lpszPrivilege, BOOL bEnablePrivilege)
+{
+	TOKEN_PRIVILEGES tp;
+	HANDLE hToken;
+	LUID luid;
 
-	HANDLE process_handle = nullptr;
-	HANDLE thread_handle = nullptr;
-	LPVOID remote_buffer = nullptr;
-	HMODULE module = NULL;
-
-	LPTHREAD_START_ROUTINE thread_start_routine = nullptr;
-
-	process_handle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);	// processthreadsapi.h, Kernel32.dll
-	if (process_handle == nullptr) {
-		return false;
+	if (!OpenProcessToken(GetCurrentProcess(),
+		TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY,
+		&hToken))
+	{
+		printf("OpenProcessToken error: %u\n", GetLastError());
+		return FALSE;
 	}
 
-	remote_buffer = VirtualAllocEx(process_handle, nullptr, dll_name.size(), MEM_COMMIT, PAGE_READWRITE);	//memoryapi.h Kernel32.dll
-
-	if (!remote_buffer) {
-		return false;
+	if (!LookupPrivilegeValue(NULL,            // lookup privilege on local system
+		lpszPrivilege,   // privilege to lookup 
+		&luid))         // receives LUID of privilege
+	{
+		printf("LookupPrivilegeValue error: %u\n", GetLastError());
+		return FALSE;
 	}
 
-	if (!WriteProcessMemory(process_handle, remote_buffer, dll_name.c_str(), dll_name.size() * sizeof(wchar_t), nullptr)) { // memoryapi.h(Windows.h Æ÷ÇÔ) Kernel32.lib
-		return false;
+	tp.PrivilegeCount = 1;
+	tp.Privileges[0].Luid = luid;
+	if (bEnablePrivilege)
+		tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+	else
+		tp.Privileges[0].Attributes = 0;
+
+	// Enable the privilege or disable all privileges.
+	if (!AdjustTokenPrivileges(hToken,
+		FALSE,
+		&tp,
+		sizeof(TOKEN_PRIVILEGES),
+		(PTOKEN_PRIVILEGES)NULL,
+		(PDWORD)NULL))
+	{
+		printf("AdjustTokenPrivileges error: %u\n", GetLastError());
+		return FALSE;
 	}
 
-	module = GetModuleHandle(L"kernel32.dll");	// libloaderapi.h(Windows.h Æ÷ÇÔ) kernel32.dll
+	if (GetLastError() == ERROR_NOT_ALL_ASSIGNED)
+	{
+		printf("The token does not have the specified privilege. \n");
+		return FALSE;
+	}
 
-	thread_start_routine = (LPTHREAD_START_ROUTINE)GetProcAddress(module, "LoadLibraryW"); // libloaderapi.h(Windows.h Æ÷ÇÔ) kernel32.dll
+	return TRUE;
+}
 
-	thread_handle = CreateRemoteThread(process_handle, nullptr, 0, thread_start_routine, remote_buffer, 0, nullptr); //processthreadsapi.h kernel32.dll
+BOOL InjectDll(DWORD dwPID, LPCTSTR szDllPath)
+{
+	HANDLE                  hProcess, hThread;
+	LPVOID                  pRemoteBuf;
+	DWORD                   dwBufSize = (DWORD)(_tcslen(szDllPath) + 1) * sizeof(TCHAR);
+	LPTHREAD_START_ROUTINE  pThreadProc;
 
-	WaitForSingleObject(thread_handle, INFINITE);	//syschapi.h kernel32.dll
+	if (!(hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwPID)))
+	{
+		printf("OpenProcess(%d) failed!!!\n", dwPID);
+		return FALSE;
+	}
 
-	result = true;
+	pRemoteBuf = VirtualAllocEx(hProcess, NULL, dwBufSize, MEM_COMMIT, PAGE_READWRITE);
 
-	CloseHandle(thread_handle);
-	CloseHandle(process_handle);
+	WriteProcessMemory(hProcess, pRemoteBuf, (LPVOID)szDllPath, dwBufSize, NULL);
 
-	return result;
+	pThreadProc = (LPTHREAD_START_ROUTINE)GetProcAddress(GetModuleHandle(L"kernel32.dll"), "LoadLibraryW");
+	hThread = CreateRemoteThread(hProcess, NULL, 0, pThreadProc, pRemoteBuf, 0, NULL);
+	WaitForSingleObject(hThread, INFINITE);
+
+	VirtualFreeEx(hProcess, pRemoteBuf, 0, MEM_RELEASE);
+
+	CloseHandle(hThread);
+	CloseHandle(hProcess);
+
+	return TRUE;
+}
+
+BOOL EjectDll(DWORD dwPID, LPCTSTR szDllPath)
+{
+	BOOL                    bMore = FALSE, bFound = FALSE;
+	HANDLE                  hSnapshot, hProcess, hThread;
+	MODULEENTRY32           me = { sizeof(me) };
+	LPTHREAD_START_ROUTINE  pThreadProc;
+
+	if (INVALID_HANDLE_VALUE ==
+		(hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, dwPID)))
+		return FALSE;
+
+	bMore = Module32First(hSnapshot, &me);
+	for (; bMore; bMore = Module32Next(hSnapshot, &me))
+	{
+		if (!_tcsicmp(me.szModule, szDllPath) ||
+			!_tcsicmp(me.szExePath, szDllPath))
+		{
+			bFound = TRUE;
+			break;
+		}
+	}
+
+	if (!bFound)
+	{
+		CloseHandle(hSnapshot);
+		return FALSE;
+	}
+
+	if (!(hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwPID)))
+	{
+		printf("OpenProcess(%d) failed!!!\n", dwPID);
+		CloseHandle(hSnapshot);
+		return FALSE;
+	}
+
+	pThreadProc = (LPTHREAD_START_ROUTINE)GetProcAddress(GetModuleHandle(L"kernel32.dll"),"FreeLibrary");
+	hThread = CreateRemoteThread(hProcess, NULL, 0, pThreadProc, me.modBaseAddr, 0, NULL);
+	WaitForSingleObject(hThread, INFINITE);
+
+	CloseHandle(hThread);
+	CloseHandle(hProcess);
+	CloseHandle(hSnapshot);
+
+	return TRUE;
+}
+
+BOOL EjectAllProcess(LPCTSTR szDllPath)
+{
+	DWORD                   dwPID = 0;
+	HANDLE                  hSnapShot = INVALID_HANDLE_VALUE;
+	PROCESSENTRY32          pe;
+
+	// Get the snapshot of the system
+	pe.dwSize = sizeof(PROCESSENTRY32);
+	hSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, NULL);
+
+	// find process
+	Process32First(hSnapShot, &pe);
+	do
+	{
+		dwPID = pe.th32ProcessID;
+
+		if (dwPID < 100)
+			continue;
+
+		EjectDll(dwPID, szDllPath);
+	} while (Process32Next(hSnapShot, &pe));
+
+	CloseHandle(hSnapShot);
+
+	return TRUE;
+}
+
+int _tmain(int argc, TCHAR* argv[])
+{
+	int nMode = INJECTION_MODE;
+	DWORD pid = 0;
+
+	if (argc != 5)
+	{
+		printf("\n Usage  : Injector.exe <-i|-e> <process name> <dll path> <dll path>\n\n");
+		return 1;
+	}
+
+	// change privilege
+	//SetPrivilege(SE_DEBUG_NAME, TRUE);
+
+	if (process_name_to_pid(pid, argv[2])) {
+		// Inject(Eject) Dll to all process
+		if (!_tcsicmp(argv[1], L"-i"))
+			nMode = EJECTION_MODE;
+
+		if (nMode) {
+			InjectDll(pid, argv[3]);
+			InjectDll(pid, argv[4]);
+			printf("Injected\n");
+		}
+		else {
+			EjectAllProcess(argv[3]);
+			EjectAllProcess(argv[4]);
+			printf("Ejected\n");
+		}
+	}
+	else {
+		printf("failed\n");
+	}
+	return 0;
 }

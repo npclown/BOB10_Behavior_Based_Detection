@@ -9,4 +9,8 @@
   <ItemGroup>
     <ClCompile Include="detected.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+  </ItemGroup>
 </Project>

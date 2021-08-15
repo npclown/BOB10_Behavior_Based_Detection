@@ -21,7 +21,5 @@ Injection.exe -i explorer.exe globalhook.dll myhook.dll
 ### detector
 - Hooking 시 발생하는 OutputDebugStringA의 메시지를 활용하여, 여러 API 조합으로 이루어진 악성코드 API 패턴과 일치하는지 비교하여 해당 프로세스가 악성프로세스라고 판단하면, 알림을 통해 차단 여부를 사용자가 결정하게 한다.
 
-#### 준성이 여자친구 구함
-
 
 

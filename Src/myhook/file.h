@@ -5,6 +5,8 @@ BYTE DeleteFileOrgFPW[5];
 BYTE DeleteFileOrgFPA[5];
 BYTE ReadFileOrgFP[5];
 BYTE WriteFileOrgFP[5];
+BYTE CreateDirectoryOrgFPW[5];
+BYTE CreateDirectoryOrgFPA[5];
 
 HANDLE WINAPI NewCreateFileW(
     _In_ LPCWSTR lpFileName,
@@ -165,5 +167,33 @@ BOOL WINAPI NewWriteFile(
                         lpOverlapped);
 
     hook_by_code("kernel32.dll", "WriteFile", (PROC)NewWriteFile, WriteFileOrgFP);
+    return ret;
+}
+
+BOOL WINAPI NewCreateDirectoryW(
+    _In_ LPCWSTR lpPathName,
+    _In_opt_ LPSECURITY_ATTRIBUTES lpSecurityAttributes
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"CreateDirectoryW");
+    unhook_by_code("kernel32.dll", "CreateDirectoryW", CreateDirectoryOrgFPW);
+
+    BOOL ret = CreateDirectoryW(lpPathName,
+                                lpSecurityAttributes);
+
+    hook_by_code("kernel32.dll", "CreateDirectoryW", (PROC)NewCreateDirectoryW, CreateDirectoryOrgFPW);
+    return ret;
+}
+
+BOOL WINAPI NewCreateDirectoryA(
+    _In_ LPCSTR lpPathName,
+    _In_opt_ LPSECURITY_ATTRIBUTES lpSecurityAttributes
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"CreateDirectoryA");
+    unhook_by_code("kernel32.dll", "CreateDirectoryA", CreateDirectoryOrgFPA);
+
+    BOOL ret = CreateDirectoryA(lpPathName,
+                                lpSecurityAttributes);
+
+    hook_by_code("kernel32.dll", "CreateDirectoryA", (PROC)NewCreateDirectoryA, CreateDirectoryOrgFPA);
     return ret;
 }

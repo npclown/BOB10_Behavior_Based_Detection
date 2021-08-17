@@ -1,18 +1,9 @@
 ﻿#include "stdafx.h"
 #include <dllheader.h>
-#include "NewCreateFile.h"
 
-//
+#include "NewCreateFile.h"
 #include "exception.h"
 #include "system.h"
-#include "process.h"
-#include "file.h"
-#include "resource.h"
-#include "misc.h"
-#include "synchronisation.h"
-
-BYTE OrgFPW[5];
-BYTE OrgFPA[5];
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
 {
@@ -22,14 +13,22 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         DebugLog("MyHook DLL_PROCESS_ATTACH\n");
         hook_by_code("kernel32.dll", "CreateFileW", (PROC)NewCreateFileW, OrgFPW);
         hook_by_code("kernel32.dll", "CreateFileA", (PROC)NewCreateFileA, OrgFPA);
-        hook_by_code("kernel32.dll", "NewUnhandledExceptionFilter", (PROC)NewUnhandledExceptionFilter, OrgFPA);
+        hook_by_code("kernel32.dll", "UnhandledExceptionFilter", (PROC)NewUnhandledExceptionFilter, UEFOrgFP);
+        hook_by_code("kernel32.dll", "SetUnhandledExceptionFilter", (PROC)NewSetUnhandledExceptionFilter, SUEFOrgFP);
+        hook_by_code("kernel32.dll", "IsDebuggerPresent", (PROC)NewIsDebuggerPresent, IDPOriFP);
+        hook_by_code("kernel32.dll", "GetSystemInfo", (PROC)NewGetSystemInfo, GSIOriFP);
+        hook_by_code("kernel32.dll", "SetErrorMode", (PROC)SetErrorMode, SEMOriFP);
         break;
     case DLL_PROCESS_DETACH:
         DebugLog("MyHook DLL_PROCESS_DETACH\n");
         unhook_by_code("kernel32.dll", "CreateFileW", OrgFPW);
         unhook_by_code("kernel32.dll", "CreateFileA", OrgFPA);
-        unhook_by_code("kernel32.dll", "NewUnhandledExceptionFilter", OrgFPA);
-
+        unhook_by_code("kernel32.dll", "UnhandledExceptionFilter", UEFOrgFP);
+        unhook_by_code("kernel32.dll", "SetUnhandledExceptionFilter", SUEFOrgFP);
+        unhook_by_code("kernel32.dll", "IsDebuggerPresent", IDPOriFP);
+        unhook_by_code("kernel32.dll", "GetSystemInfo", GSIOriFP);
+        unhook_by_code("kernel32.dll", "SetErrorMode", SEMOriFP);
+        
         break;
     }
     return TRUE;

@@ -1,8 +1,5 @@
-﻿#include "stdafx.h"
-#include <dllheader.h>
-
-BYTE CFOrgFPW[5];
-BYTE CFOrgFPA[5];
+﻿BYTE OrgFPW[5];
+BYTE OrgFPA[5];
 
 HANDLE WINAPI NewCreateFileW(
     _In_ LPCWSTR lpFileName,
@@ -14,7 +11,7 @@ HANDLE WINAPI NewCreateFileW(
     _In_opt_ HANDLE hTemplateFile
 ) {
     DebugLog("%d %ls", GetCurrentProcessId(), L"CreateFileW");
-    unhook_by_code("kernel32.dll", "CreateFileW", CFOrgFPW);
+    unhook_by_code("kernel32.dll", "CreateFileW", OrgFPW);
 
     if (dwDesiredAccess & (GENERIC_ALL | GENERIC_WRITE | WRITE_OWNER)) {
         if (wcsstr(wcslwr((LP)lpFileName), L"system32") != NULL && wcsstr(wcslwr((LP)lpFileName), L".exe") == NULL) {
@@ -23,7 +20,7 @@ HANDLE WINAPI NewCreateFileW(
             int input = MessageBox(NULL, result, L"Detected", MB_YESNO);
             if (input == IDNO) {
                 MessageBox(NULL, L"해당 폴더을 접근을 차단하였습니다.", L"차단", MB_OK);
-                hook_by_code("kernel32.dll", "CreateFileW", (PROC)NewCreateFileW, CFOrgFPW);
+                hook_by_code("kernel32.dll", "CreateFileW", (PROC)NewCreateFileW, OrgFPW);
                 return NULL;
             }
         }
@@ -34,7 +31,7 @@ HANDLE WINAPI NewCreateFileW(
             int input = MessageBox(NULL, result, L"Detected", MB_YESNO);
             if (input == IDNO) {
                 MessageBox(NULL, L"해당 파일을 차단하였습니다.", L"차단", MB_OK);
-                hook_by_code("kernel32.dll", "CreateFileW", (PROC)NewCreateFileW, CFOrgFPW);
+                hook_by_code("kernel32.dll", "CreateFileW", (PROC)NewCreateFileW, OrgFPW);
                 return NULL;
             }
         }
@@ -48,7 +45,7 @@ HANDLE WINAPI NewCreateFileW(
         dwFlagsAndAttributes,
         hTemplateFile);
 
-    hook_by_code("kernel32.dll", "CreateFileW", (PROC)NewCreateFileW, CFOrgFPW);
+    hook_by_code("kernel32.dll", "CreateFileW", (PROC)NewCreateFileW, OrgFPW);
 
     return ret;
 }
@@ -63,7 +60,7 @@ HANDLE WINAPI NewCreateFileA(
     _In_opt_ HANDLE hTemplateFile
 ) {
     DebugLog("%d %ls", GetCurrentProcessId(), L"CreateFileA");
-    unhook_by_code("kernel32.dll", "CreateFileA", CFOrgFPA);
+    unhook_by_code("kernel32.dll", "CreateFileA", OrgFPA);
 
     if (dwDesiredAccess & (GENERIC_ALL | GENERIC_WRITE | WRITE_OWNER)) {
         if (strstr(strlwr((LPSTR)lpFileName), "system32") != NULL && strstr(strlwr((LPSTR)lpFileName), ".exe") == NULL) {
@@ -72,7 +69,7 @@ HANDLE WINAPI NewCreateFileA(
             int input = MessageBox(NULL, result, L"Detected", MB_YESNO);
             if (input == IDNO) {
                 MessageBox(NULL, L"해당 폴더을 접근을 차단하였습니다.", L"차단", MB_OK);
-                hook_by_code("kernel32.dll", "CreateFileW", (PROC)NewCreateFileW, CFOrgFPW);
+                hook_by_code("kernel32.dll", "CreateFileW", (PROC)NewCreateFileW, OrgFPW);
                 return NULL;
             }
         }
@@ -83,7 +80,7 @@ HANDLE WINAPI NewCreateFileA(
             int input = MessageBox(NULL, result, L"Detected", MB_YESNO);
             if (input == IDNO) {
                 MessageBox(NULL, L"해당 파일을 차단하였습니다.", L"차단", MB_OK);
-                hook_by_code("kernel32.dll", "CreateFileW", (PROC)NewCreateFileW, CFOrgFPW);
+                hook_by_code("kernel32.dll", "CreateFileW", (PROC)NewCreateFileW, OrgFPW);
                 return NULL;
             }
         }
@@ -97,7 +94,7 @@ HANDLE WINAPI NewCreateFileA(
         dwFlagsAndAttributes,
         hTemplateFile);
 
-    hook_by_code("kernel32.dll", "CreateFileA", (PROC)NewCreateFileA, CFOrgFPA);
+    hook_by_code("kernel32.dll", "CreateFileA", (PROC)NewCreateFileA, OrgFPA);
     DebugLog("DllMain() : NewCreateFileA\n");
     return ret;
 }

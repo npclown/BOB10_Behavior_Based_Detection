@@ -4,6 +4,11 @@
 #include "stdafx.h"
 #include <Windows.h>
 #include <stdio.h>
+#include <map>
+#include <set>
+#include <string>
+#include <iostream>
+#include <fstream>
 
 struct db_buffer
 {
@@ -19,7 +24,37 @@ HANDLE hEventBufferReady;
 
 struct db_buffer* pDBBuffer;
 
+// pid를 키로 가지고 해당 pid의 호출 api 목록을 set으로 저장하는 map : logs
+std::map<DWORD, std::set<std::string>> logs;
+std::string detach = "DETACH";
+std::string attach = "ATTACH";
 
+void Get_API(DWORD pid, char* data)
+{
+	if (data == NULL)
+		return;
+	
+	std::string* str_data = new std::string("");
+	std::string* str_pid = new std::string("");
+
+	*str_data = (std::string)data;
+	*str_pid = std::to_string((int)pid);
+
+	if (*str_pid == (*str_data).substr(0, (*str_pid).size())) {
+		logs[pid].insert((*str_data).substr((*str_pid).size() + 1));
+	}
+	else {
+		if ((*str_data).substr((*str_data).size() - 6) == detach) {
+			logs[pid].clear();
+		}
+	}
+
+	delete str_data;
+	delete str_pid;
+
+	return;
+}
+// 여기까지
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -98,6 +133,12 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 
 	bool isRunning = true;
+
+	// csv 파일 만들기 
+	// 행 별로 0번째에 해당 process 경로 (이름 포함), 1번째에 해당 pid 2번째부터 api 이름
+	std::ofstream writeFile;
+	writeFile.open("logs.csv");
+
 	while (isRunning)
 	{
 
@@ -106,10 +147,37 @@ int _tmain(int argc, _TCHAR* argv[])
 		if (mb == WAIT_OBJECT_0) {
 
 			printf("[%d] %s\n", pDBBuffer->dwProcessId, pDBBuffer->data);
+			Get_API(pDBBuffer->dwProcessId, pDBBuffer->data);
+
+			try {
+				HANDLE process_handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pDBBuffer->dwProcessId);
+				if (process_handle) {
+					wchar_t buffer[MAX_PATH] = {};
+					DWORD buffer_size = MAX_PATH;
+
+					if (QueryFullProcessImageNameW(process_handle, 0, buffer, &buffer_size)) {
+						std::wstring ws(buffer);
+						std::string str(ws.begin(), ws.end());
+
+						writeFile << str << ',' << pDBBuffer->dwProcessId << ',';
+						
+						for (auto api_name : logs[pDBBuffer->dwProcessId]) {
+							writeFile << api_name << ',';
+						}
+						writeFile << '\n';
+					}
+				}
+				CloseHandle(process_handle);
+			}
+			catch (int exception) {
+				writeFile << "error" << '\n';
+			}
+
 			SetEvent(hEventBufferReady);
 		}
-
 	}
+
+	writeFile.close();
 
 	UnmapViewOfFile(pDBBuffer);
 	CloseHandle(hDBWINBuffer);

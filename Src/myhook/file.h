@@ -13,6 +13,8 @@ BYTE GetTempPathOrgFPW[5];
 BYTE GetTempPathOrgFPA[5];
 BYTE FindFirstFileOrgFPW[5];
 BYTE FindFirstFileOrgFPA[5];
+BYTE GetFileAttributesOrgFPW[5];
+BYTE GetFileAttributesOrgFPA[5];
 
 HANDLE WINAPI NewCreateFileW(
     _In_ LPCWSTR lpFileName,
@@ -289,5 +291,29 @@ HANDLE WINAPI NewFindFirstFileA(
                                 lpFindFileData);
 
     hook_by_code("kernel32.dll", "FindFirstFileA", (PROC)NewFindFirstFileA, FindFirstFileOrgFPA);
+    return ret;
+}
+
+DWORD WINAPI NewGetFileAttributesW(
+    _In_ LPCWSTR lpFileName
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"GetFileAttributesW");
+    unhook_by_code("kernel32.dll", "GetFileAttributesW", GetFileAttributesOrgFPW);
+
+    DWORD ret = GetFileAttributesW(lpFileName);
+
+    hook_by_code("kernel32.dll", "GetFileAttributesW", (PROC)NewGetFileAttributesW, GetFileAttributesOrgFPW);
+    return ret;
+}
+
+DWORD WINAPI NewGetFileAttributesA(
+    _In_ LPCSTR lpFileName
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"GetFileAttributesA");
+    unhook_by_code("kernel32.dll", "GetFileAttributesA", GetFileAttributesOrgFPA);
+
+    DWORD ret = GetFileAttributesA(lpFileName);
+
+    hook_by_code("kernel32.dll", "GetFileAttributesA", (PROC)NewGetFileAttributesA, GetFileAttributesOrgFPA);
     return ret;
 }

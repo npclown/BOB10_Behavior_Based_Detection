@@ -20,6 +20,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         hook_by_code("kernel32.dll", "GetTempPathA", (PROC)NewGetTempPathA, GetTempPathOrgFPA);
         hook_by_code("kernel32.dll", "FindFirstFileW", (PROC)NewFindFirstFileW, FindFirstFileOrgFPW);
         hook_by_code("kernel32.dll", "FindFirstFileA", (PROC)NewFindFirstFileA, FindFirstFileOrgFPA);
+        hook_by_code("kernel32.dll", "GetFileAttributesW", (PROC)NewGetFileAttributesW, GetFileAttributesOrgFPW);
+        hook_by_code("kernel32.dll", "GetFileAttributesA", (PROC)NewGetFileAttributesA, GetFileAttributesOrgFPA);
         break;
     case DLL_PROCESS_DETACH:
         DebugLog("MyHook DLL_PROCESS_DETACH\n");
@@ -37,6 +39,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         unhook_by_code("kernel32.dll", "GetTempPathA", GetTempPathOrgFPA);
         unhook_by_code("kernel32.dll", "FindFirstFileW", FindFirstFileOrgFPW);
         unhook_by_code("kernel32.dll", "FindFirstFileA", FindFirstFileOrgFPA);
+        unhook_by_code("kernel32.dll", "GetFileAttributesW", GetFileAttributesOrgFPW);
+        unhook_by_code("kernel32.dll", "GetFileAttributesA", GetFileAttributesOrgFPA);
         break;
     }
     return TRUE;

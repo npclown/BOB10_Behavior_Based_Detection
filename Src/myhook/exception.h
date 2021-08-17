@@ -9,7 +9,7 @@ LONG WINAPI NewUnhandledExceptionFilter(
 
     unhook_by_code("kernel32.dll", "UnhandledExceptionFilter", UEFOrgFP);
     LONG ret = UnhandledExceptionFilter(ExceptionInfo);
-    hook_by_code("kernel32.dll", "UnhandledExceptionFilter", (PROC)UnhandledExceptionFilter, UEFOrgFP);
+    hook_by_code("kernel32.dll", "UnhandledExceptionFilter", (PROC)NewUnhandledExceptionFilter, UEFOrgFP);
     return ret;
 }
 
@@ -20,6 +20,6 @@ LPTOP_LEVEL_EXCEPTION_FILTER WINAPI NewSetUnhandledExceptionFilter(
 
     unhook_by_code("kernel32.dll", "SetUnhandledExceptionFilter", SUEFOrgFP);
     LPTOP_LEVEL_EXCEPTION_FILTER ret = SetUnhandledExceptionFilter(lpTopLevelExceptionFilter);
-    hook_by_code("kernel32.dll", "SetUnhandledExceptionFilter", (PROC)SetUnhandledExceptionFilter, SUEFOrgFP);
+    hook_by_code("kernel32.dll", "SetUnhandledExceptionFilter", (PROC)NewSetUnhandledExceptionFilter, SUEFOrgFP);
     return ret;
 }

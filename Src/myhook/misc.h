@@ -42,7 +42,7 @@ BYTE OrgGDW[5]; //GetDiskFreeSpaceW
 DWORD WINAPI NewGetTimeZoneInformation(
 	_Out_ LPTIME_ZONE_INFORMATION lpTimeZoneInformation
 ) {
-	DebugLog("%d %ls", GetCurrentProcessId(), "GetTimeZoneInformation");
+	DebugLog("%d %ls", GetCurrentProcessId(), L"GetTimeZoneInformation");
 	unhook_by_code("kernel32.dll", "GetTimeZoneInformation", OrgGTZ);
 	DWORD GTZ_handle = GetTimeZoneInformation(lpTimeZoneInformation);
 
@@ -55,7 +55,7 @@ BOOL WINAPI NewGetComputerNameA(
 	_Out_writes_to_opt_(*nSize, *nSize + 1) LPSTR lpBuffer,
 	_Inout_ LPDWORD nSize
 ) {
-	DebugLog("%d %ls", GetCurrentProcessId(), "GetComputerNameA");
+	DebugLog("%d %ls", GetCurrentProcessId(), L"GetComputerNameA");
 	unhook_by_code("kernel32.dll", "GetComputerNameA", OrgGCA);
 
 	BOOL GCA_handle = GetComputerNameA(lpBuffer, nSize);
@@ -67,12 +67,12 @@ BOOL WINAPI NewGetComputerNameW(
 	_Out_writes_to_opt_(*nSize, *nSize + 1) LPWSTR lpBuffer,
 	_Inout_ LPDWORD nSize
 ) {
-	DebugLog("%d %ls", GetCurrentProcessId(), "GetComputerNameW");
+	DebugLog("%d %ls", GetCurrentProcessId(), L"GetComputerNameW");
 	unhook_by_code("kernel32.dll", "GetComputerNameW", OrgGCW);
 
 	BOOL GCW_handle = GetComputerNameW(lpBuffer, nSize);
 
-	hook_by_code("kernel32.dll", "GetComputerNameW", (PROC)NewGetComputerNameA, OrgGCW);
+	hook_by_code("kernel32.dll", "GetComputerNameW", (PROC)NewGetComputerNameW, OrgGCW);
 	return GCW_handle;
 }
 
@@ -85,7 +85,7 @@ BOOL WINAPI NewGetDiskFreeSpaceA(
 	_Out_opt_ LPDWORD lpNumberOfFreeClusters,
 	_Out_opt_ LPDWORD lpTotalNumberOfClusters
 ) {
-	DebugLog("%d %ls", GetCurrentProcessId(), "GetDiskFreeSpaceA");
+	DebugLog("%d %ls", GetCurrentProcessId(), L"GetDiskFreeSpaceA");
 	unhook_by_code("kernel32.dll", "GetDiskFreeSpaceA", OrgGDA);
 
 
@@ -108,7 +108,7 @@ BOOL WINAPI NewGetDiskFreeSpaceW(
 	_Out_opt_ LPDWORD lpNumberOfFreeClusters,
 	_Out_opt_ LPDWORD lpTotalNumberOfClusters
 ) {
-	DebugLog("%d %ls", GetCurrentProcessId(), "GetDiskFreeSpaceW");
+	DebugLog("%d %ls", GetCurrentProcessId(), L"GetDiskFreeSpaceW");
 	unhook_by_code("kernel32.dll", "GetDiskFreeSpaceW", OrgGDW);
 
 	BOOL GDW_handle = GetDiskFreeSpaceW(
@@ -119,7 +119,7 @@ BOOL WINAPI NewGetDiskFreeSpaceW(
 		lpTotalNumberOfClusters
 	);
 
-	hook_by_code("kernel32.dll", "GetDiskFreeSpaceW", (PROC)NewGetDiskFreeSpaceA, OrgGDW);
+	hook_by_code("kernel32.dll", "GetDiskFreeSpaceW", (PROC)NewGetDiskFreeSpaceW, OrgGDW);
 
 	return GDW_handle;
 }

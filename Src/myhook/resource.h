@@ -45,7 +45,7 @@ HANDLE WINAPI NewFindResourceA( //FindResourceA -> winbase.h
 	_In_     LPCSTR lpName,
 	_In_     LPCSTR lpType
 ) {
-	DebugLog("%d %ls", GetCurrentProcessId(), "FindResourceA");
+	DebugLog("%d %ls", GetCurrentProcessId(), L"FindResourceA");
 	unhook_by_code("kernel32.dll", "FindResourceA", OrgFRA);
 
 	HANDLE FRA_handle = FindResourceA(hModule, lpName, lpType);
@@ -59,7 +59,7 @@ HANDLE WINAPI NewFindResourceW( //FindResourceW -> libloaderapi.h
 	_In_ LPCWSTR lpName,
 	_In_ LPCWSTR lpType
 ) {
-	DebugLog("%d %ls", GetCurrentProcessId(), "FindResourceW");
+	DebugLog("%d %ls", GetCurrentProcessId(), L"FindResourceW");
 	unhook_by_code("kernel32.dll", "FindResourceW", OrgFRW);
 
 	HANDLE FRW_handle = FindResourceW(hModule, lpName, lpType);
@@ -74,7 +74,7 @@ HANDLE WINAPI NewLoadResource(
 	_In_opt_ HMODULE hModule,
 	_In_ HRSRC hResInfo
 ) {
-	DebugLog("%d %ls", GetCurrentProcessId(), "LoadResource");
+	DebugLog("%d %ls", GetCurrentProcessId(), L"LoadResource");
 	unhook_by_code("kernel32.dll", "LoadResource", OrgLR);
 
 	HANDLE LP_handle = LoadResource(hModule, hResInfo);
@@ -88,7 +88,7 @@ DWORD WINAPI NewSizeofResource(
 	_In_opt_ HMODULE hModule,
 	_In_ HRSRC hResInfo
 ) {
-	DebugLog("%d %ls", GetCurrentProcessId(), "SizeofResource");
+	DebugLog("%d %ls", GetCurrentProcessId(), L"SizeofResource");
 	unhook_by_code("kernel32.dll", "SizeofResource", OrgSR);
 
 	//cannot make handle cuz this api type is DWORD!!!!

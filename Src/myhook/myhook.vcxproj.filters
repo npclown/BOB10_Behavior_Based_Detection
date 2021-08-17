@@ -8,6 +8,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="NewCreateFile.h" />
+    <ClInclude Include="exception.h" />
+    <ClInclude Include="system.h" />
+    <ClInclude Include="process.h" />
+    <ClInclude Include="file.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="misc.h" />
+    <ClInclude Include="synchronisation.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />

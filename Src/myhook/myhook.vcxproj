@@ -167,7 +167,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="exception.h" />
+    <ClInclude Include="file.h" />
+    <ClInclude Include="misc.h" />
+    <ClInclude Include="NewCreateFile.h" />
+    <ClInclude Include="process.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="synchronisation.h" />
+    <ClInclude Include="system.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />

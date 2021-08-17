@@ -42,7 +42,7 @@ BYTE OrgSleep[5];
 
 //Definition structure of GetTickCount
 DWORD WINAPI NewGetTickCount(VOID) {
-	DebugLog("%d %ls", GetCurrentProcessId(), "GetTickCount");
+	DebugLog("%d %ls", GetCurrentProcessId(), L"GetTickCount");
 	unhook_by_code("kernel32.dll", "GetTickCount", OrgGTC);
 	
 	DWORD GTC_handle = GetTickCount();
@@ -53,7 +53,7 @@ DWORD WINAPI NewGetTickCount(VOID) {
 
 //Definition structure of GetLocalTime (TYPE - VOID)
 VOID WINAPI NewGetLocalTime(_Out_ LPSYSTEMTIME lpSystemTime) {
-	DebugLog("%d %ls", GetCurrentProcessId(), "GetLocalTime");
+	DebugLog("%d %ls", GetCurrentProcessId(), L"GetLocalTime");
 	unhook_by_code("kernel32.dll", "GetLocalTime", OrgGLT);
 	GetLocalTime(lpSystemTime);
 	hook_by_code("kernel32.dll", "GetLocalTime", (PROC)NewGetLocalTime, OrgGLT);
@@ -61,7 +61,7 @@ VOID WINAPI NewGetLocalTime(_Out_ LPSYSTEMTIME lpSystemTime) {
 
 //Definition structure of GetSystemTimeAsFileTime (TYPE - VOID)
 VOID WINAPI NewGetSystemTimeAsFileTime(_Out_ LPFILETIME lpSystemTimeAsFileTime) {
-	DebugLog("%d %ls", GetCurrentProcessId(), "GetSystemTimeAsFileTime");
+	DebugLog("%d %ls", GetCurrentProcessId(), L"GetSystemTimeAsFileTime");
 	unhook_by_code("kernel32.dll", "GetSystemTimeAsFileTime", OrgGSTFT);
 
 	GetSystemTimeAsFileTime(lpSystemTimeAsFileTime);
@@ -73,7 +73,7 @@ VOID WINAPI NewGetSystemTimeAsFileTime(_Out_ LPFILETIME lpSystemTimeAsFileTime) 
 VOID WINAPI NewSleep(
 	_In_ DWORD dwMilliseconds
 ) { 
-	DebugLog("%d %ls", GetCurrentProcessId(), "Sleep");
+	DebugLog("%d %ls", GetCurrentProcessId(), L"Sleep");
 	unhook_by_code("kernel32.dll", "Sleep", OrgSleep);
 
 	Sleep(dwMilliseconds);

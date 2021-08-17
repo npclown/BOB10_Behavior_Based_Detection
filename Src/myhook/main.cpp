@@ -5,6 +5,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
+        DebugLog("MyHook DLL_PROCESS_ATTACH\n");
+        //file.h
         hook_by_code("kernel32.dll", "CreateFileW", (PROC)NewCreateFileW, CreateFileOrgFPW);
         hook_by_code("kernel32.dll", "CreateFileA", (PROC)NewCreateFileA, CreateFileOrgFPA);
         hook_by_code("kernel32.dll", "DeleteFileW", (PROC)NewDeleteFileW, DeleteFileOrgFPW);
@@ -24,23 +26,30 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         hook_by_code("kernel32.dll", "GetFileSize", (PROC)NewGetFileSize, GetFileSizeOrgFP);
         hook_by_code("kernel32.dll", "SetEndOfFile", (PROC)NewSetEndOfFile, SetEndOfFileOrgFP);
         hook_by_code("kernel32.dll", "SetFilePointer", (PROC)NewSetFilePointer, SetFilePointerOrgFP);
+        //resource.h
         hook_by_code("kernel32.dll", "FindResourceA", (PROC)NewFindResourceA, OrgFRA);
         hook_by_code("kernel32.dll", "FindResourceA", (PROC)NewFindResourceW, OrgFRW);
         hook_by_code("kernel32.dll", "LoadResource", (PROC)NewLoadResource, OrgLR);
         hook_by_code("kernel32.dll", "SizeofResource", (PROC)NewSizeofResource, OrgSR);
+        //misc.h
         hook_by_code("kernel32.dll", "GetTimeZoneInformation", (PROC)NewGetTimeZoneInformation, OrgGTZ);
-        hook_by_code("kernel32.dll", "GetComputerNameW", (PROC)NewGetComputerNameA, OrgGCW);
+        hook_by_code("kernel32.dll", "GetComputerNameA", (PROC)NewGetComputerNameA, OrgGCA);
+        hook_by_code("kernel32.dll", "GetComputerNameW", (PROC)NewGetComputerNameW, OrgGCW);
         hook_by_code("kernel32.dll", "GetDiskFreeSpaceA", (PROC)NewGetDiskFreeSpaceA, OrgGDA);
-        hook_by_code("kernel32.dll", "GetDiskFreeSpaceW", (PROC)NewGetDiskFreeSpaceA, OrgGDW);
-        hook_by_code("kernel32.dll", "GetTickCount", (PROC)NewGetTickCount, OrgGTC);
+        hook_by_code("kernel32.dll", "GetDiskFreeSpaceW", (PROC)NewGetDiskFreeSpaceW, OrgGDW);
+        //synchronisation.h
+        //hook_by_code("kernel32.dll", "GetTickCount", (PROC)NewGetTickCount, OrgGTC);
         hook_by_code("kernel32.dll", "GetLocalTime", (PROC)NewGetLocalTime, OrgGLT);
         hook_by_code("kernel32.dll", "GetSystemTimeAsFileTime", (PROC)NewGetSystemTimeAsFileTime, OrgGSTFT);
         hook_by_code("kernel32.dll", "Sleep", (PROC)NewSleep, OrgSleep);
+        //exception.h
         hook_by_code("kernel32.dll", "UnhandledExceptionFilter", (PROC)NewUnhandledExceptionFilter, UEFOrgFP);
         hook_by_code("kernel32.dll", "SetUnhandledExceptionFilter", (PROC)NewSetUnhandledExceptionFilter, SUEFOrgFP);
-        hook_by_code("kernel32.dll", "IsDebuggerPresent", (PROC)NewIsDebuggerPresent, IDPOriFP);
+        //system.h
+        //hook_by_code("kernel32.dll", "IsDebuggerPresent", (PROC)NewIsDebuggerPresent, IDPOriFP);
         hook_by_code("kernel32.dll", "GetSystemInfo", (PROC)NewGetSystemInfo, GSIOriFP);
-        hook_by_code("kernel32.dll", "SetErrorMode", (PROC)SetErrorMode, SEMOriFP);
+        hook_by_code("kernel32.dll", "SetErrorMode", (PROC)NewSetErrorMode, SEMOriFP);
+        //process.h
         hook_by_code("kernel32.dll", "OpenProcess", (PROC)NewOpenProcess, OP_OrgFP);
         hook_by_code("kernel32.dll", "TerminateProcess", (PROC)NewTerminateProcess, TP_OrgFP);
         hook_by_code("kernel32.dll", "CreateThread", (PROC)NewCreateThread, CT_OrgFP);
@@ -49,6 +58,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         break;
     case DLL_PROCESS_DETACH:
         DebugLog("MyHook DLL_PROCESS_DETACH\n");
+        //file.h
         unhook_by_code("kernel32.dll", "CreateFileW", CreateFileOrgFPW);
         unhook_by_code("kernel32.dll", "CreateFileA", CreateFileOrgFPA);
         unhook_by_code("kernel32.dll", "DeleteFileW", DeleteFileOrgFPW);
@@ -68,23 +78,35 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         unhook_by_code("kernel32.dll", "GetFileSize", GetFileSizeOrgFP);
         unhook_by_code("kernel32.dll", "SetEndOfFile", SetEndOfFileOrgFP);
         unhook_by_code("kernel32.dll", "SetFilePointer", SetFilePointerOrgFP);
+        //resource.h
         unhook_by_code("kernel32.dll", "FindResourceA", OrgFRA);
         unhook_by_code("kernel32.dll", "FindResourceW", OrgFRW);
         unhook_by_code("kernel32.dll", "LoadResource", OrgLR);
         unhook_by_code("kernel32.dll", "SizeofResource", OrgSR);
+        //misc.h
+        unhook_by_code("kernel32.dll", "GetTimeZoneInformation", OrgGTZ);
         unhook_by_code("kernel32.dll", "GetDiskFreeSpaceW", OrgGDW);
         unhook_by_code("kernel32.dll", "GetDiskFreeSpaceA", OrgGDA);
         unhook_by_code("kernel32.dll", "GetComputerNameW", OrgGCW);
         unhook_by_code("kernel32.dll", "GetComputerNameA", OrgGCA);
-        unhook_by_code("kernel32.dll", "GetTickCount", OrgGTC);
+        //synchronisation.h
+        //unhook_by_code("kernel32.dll", "GetTickCount", OrgGTC);
         unhook_by_code("kernel32.dll", "GetLocalTime", OrgGLT);
         unhook_by_code("kernel32.dll", "GetSystemTimeAsFileTime", OrgGSTFT);
         unhook_by_code("kernel32.dll", "Sleep", OrgSleep);
+        //exception.h
         unhook_by_code("kernel32.dll", "UnhandledExceptionFilter", UEFOrgFP);
         unhook_by_code("kernel32.dll", "SetUnhandledExceptionFilter", SUEFOrgFP);
-        unhook_by_code("kernel32.dll", "IsDebuggerPresent", IDPOriFP);
+        //system.h
+        //unhook_by_code("kernel32.dll", "IsDebuggerPresent", IDPOriFP);
         unhook_by_code("kernel32.dll", "GetSystemInfo", GSIOriFP);
         unhook_by_code("kernel32.dll", "SetErrorMode", SEMOriFP);
+        //process.h
+        unhook_by_code("kernel32.dll", "OpenProcess", OP_OrgFP);
+        unhook_by_code("kernel32.dll", "TerminateProcess", TP_OrgFP);
+        unhook_by_code("kernel32.dll", "CreateThread", CT_OrgFP);
+        unhook_by_code("kernel32.dll", "ResumeThread", RT_OrgFP);
+        unhook_by_code("kernel32.dll", "SuspendThread", ST_OrgFP);
         break;
     }
     return TRUE;

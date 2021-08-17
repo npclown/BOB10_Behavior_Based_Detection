@@ -183,7 +183,7 @@ int _tmain(int argc, TCHAR* argv[])
 	int nMode = INJECTION_MODE;
 	DWORD pid = 0;
 
-	if (argc != 5)
+	if (argc != 4)
 	{
 		printf("\n Usage  : Injector.exe <-i|-e> <process name> <dll path> <dll path>\n\n");
 		return 1;
@@ -199,12 +199,12 @@ int _tmain(int argc, TCHAR* argv[])
 
 		if (nMode) {
 			InjectDll(pid, argv[3]);
-			InjectDll(pid, argv[4]);
+			//InjectDll(pid, argv[4]);
 			printf("Injected\n");
 		}
 		else {
 			EjectAllProcess(argv[3]);
-			EjectAllProcess(argv[4]);
+			//EjectAllProcess(argv[4]);
 			printf("Ejected\n");
 		}
 	}

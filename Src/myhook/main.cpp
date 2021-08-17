@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+#include "stdafx.h"
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
 {
@@ -25,26 +25,23 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         hook_by_code("kernel32.dll", "GetFileSize", (PROC)NewGetFileSize, GetFileSizeOrgFP);
         hook_by_code("kernel32.dll", "SetEndOfFile", (PROC)NewSetEndOfFile, SetEndOfFileOrgFP);
         hook_by_code("kernel32.dll", "SetFilePointer", (PROC)NewSetFilePointer, SetFilePointerOrgFP);
-        // ########   RESOURCE.H hook_by_code   ########
-        //FindResourceA,W
         hook_by_code("kernel32.dll", "FindResourceA", (PROC)NewFindResourceA, OrgFRA);
         hook_by_code("kernel32.dll", "FindResourceA", (PROC)NewFindResourceW, OrgFRW);
-        //LoadResource
         hook_by_code("kernel32.dll", "LoadResource", (PROC)NewLoadResource, OrgLR);
-        //SizeofResource
         hook_by_code("kernel32.dll", "SizeofResource", (PROC)NewSizeofResource, OrgSR);
-
-        // ########   MISC.H hook_by_code   ########
         hook_by_code("kernel32.dll", "GetTimeZoneInformation", (PROC)NewGetTimeZoneInformation, OrgGTZ);
         hook_by_code("kernel32.dll", "GetComputerNameW", (PROC)NewGetComputerNameA, OrgGCW);
         hook_by_code("kernel32.dll", "GetDiskFreeSpaceA", (PROC)NewGetDiskFreeSpaceA, OrgGDA);
         hook_by_code("kernel32.dll", "GetDiskFreeSpaceW", (PROC)NewGetDiskFreeSpaceA, OrgGDW);
-
-        // ########   SYNCHRONISATION.H hook_by_code   ########
         hook_by_code("kernel32.dll", "GetTickCount", (PROC)NewGetTickCount, OrgGTC);
         hook_by_code("kernel32.dll", "GetLocalTime", (PROC)NewGetLocalTime, OrgGLT);
         hook_by_code("kernel32.dll", "GetSystemTimeAsFileTime", (PROC)NewGetSystemTimeAsFileTime, OrgGSTFT);
         hook_by_code("kernel32.dll", "Sleep", (PROC)NewSleep, OrgSleep);
+        hook_by_code("kernel32.dll", "UnhandledExceptionFilter", (PROC)NewUnhandledExceptionFilter, UEFOrgFP);
+        hook_by_code("kernel32.dll", "SetUnhandledExceptionFilter", (PROC)NewSetUnhandledExceptionFilter, SUEFOrgFP);
+        hook_by_code("kernel32.dll", "IsDebuggerPresent", (PROC)NewIsDebuggerPresent, IDPOriFP);
+        hook_by_code("kernel32.dll", "GetSystemInfo", (PROC)NewGetSystemInfo, GSIOriFP);
+        hook_by_code("kernel32.dll", "SetErrorMode", (PROC)SetErrorMode, SEMOriFP);
         break;
     case DLL_PROCESS_DETACH:
         DebugLog("MyHook DLL_PROCESS_DETACH\n");
@@ -67,22 +64,23 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         unhook_by_code("kernel32.dll", "GetFileSize", GetFileSizeOrgFP);
         unhook_by_code("kernel32.dll", "SetEndOfFile", SetEndOfFileOrgFP);
         unhook_by_code("kernel32.dll", "SetFilePointer", SetFilePointerOrgFP);
-        
-        // ########   RESOURCE.H hook_by_code   ########
         unhook_by_code("kernel32.dll", "FindResourceA", OrgFRA);
         unhook_by_code("kernel32.dll", "FindResourceW", OrgFRW);
         unhook_by_code("kernel32.dll", "LoadResource", OrgLR);
         unhook_by_code("kernel32.dll", "SizeofResource", OrgSR);
-        // ########   MISC.H hook_by_code   ########
         unhook_by_code("kernel32.dll", "GetDiskFreeSpaceW", OrgGDW);
         unhook_by_code("kernel32.dll", "GetDiskFreeSpaceA", OrgGDA);
         unhook_by_code("kernel32.dll", "GetComputerNameW", OrgGCW);
         unhook_by_code("kernel32.dll", "GetComputerNameA", OrgGCA);
-        // ########   SYNCHRONISATION.H hook_by_code   ########
         unhook_by_code("kernel32.dll", "GetTickCount", OrgGTC);
         unhook_by_code("kernel32.dll", "GetLocalTime", OrgGLT);
         unhook_by_code("kernel32.dll", "GetSystemTimeAsFileTime", OrgGSTFT);
         unhook_by_code("kernel32.dll", "Sleep", OrgSleep);
+        unhook_by_code("kernel32.dll", "UnhandledExceptionFilter", UEFOrgFP);
+        unhook_by_code("kernel32.dll", "SetUnhandledExceptionFilter", SUEFOrgFP);
+        unhook_by_code("kernel32.dll", "IsDebuggerPresent", IDPOriFP);
+        unhook_by_code("kernel32.dll", "GetSystemInfo", GSIOriFP);
+        unhook_by_code("kernel32.dll", "SetErrorMode", SEMOriFP);
         break;
     }
     return TRUE;

@@ -11,5 +11,7 @@
 #include "resource.h"
 #include "misc.h"
 #include "synchronisation.h"
+#include "exception.h"
+#include "system.h"
 
 #define DLLNAME L"myhook.dll"

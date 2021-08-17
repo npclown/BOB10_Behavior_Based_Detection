@@ -8,6 +8,9 @@
 #include <dllheader.h>
 
 #include "file.h"
+#include "resource.h"
+#include "misc.h"
+#include "synchronisation.h"
 #include "exception.h"
 #include "system.h"
 

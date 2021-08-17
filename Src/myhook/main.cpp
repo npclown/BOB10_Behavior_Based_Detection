@@ -14,6 +14,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         hook_by_code("kernel32.dll", "WriteFile", (PROC)NewWriteFile, WriteFileOrgFP);
         hook_by_code("kernel32.dll", "CreateDirectoryW", (PROC)NewCreateDirectoryW, CreateDirectoryOrgFPW);
         hook_by_code("kernel32.dll", "CreateDirectoryA", (PROC)NewCreateDirectoryA, CreateDirectoryOrgFPA);
+        hook_by_code("kernel32.dll", "CopyFileW", (PROC)NewCopyFileW, CopyFileOrgFPW);
+        hook_by_code("kernel32.dll", "CopyFileA", (PROC)NewCopyFileA, CopyFileOrgFPA);
         break;
     case DLL_PROCESS_DETACH:
         DebugLog("MyHook DLL_PROCESS_DETACH\n");
@@ -25,6 +27,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         unhook_by_code("kernel32.dll", "WriteFile", WriteFileOrgFP);
         unhook_by_code("kernel32.dll", "CreateDirectoryW", CreateDirectoryOrgFPW);
         unhook_by_code("kernel32.dll", "CreateDirectoryA", CreateDirectoryOrgFPA);
+        unhook_by_code("kernel32.dll", "CopyFileW", CopyFileOrgFPW);
+        unhook_by_code("kernel32.dll", "CopyFileA", CopyFileOrgFPA);
         break;
     }
     return TRUE;

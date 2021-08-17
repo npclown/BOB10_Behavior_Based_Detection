@@ -7,6 +7,8 @@ BYTE ReadFileOrgFP[5];
 BYTE WriteFileOrgFP[5];
 BYTE CreateDirectoryOrgFPW[5];
 BYTE CreateDirectoryOrgFPA[5];
+BYTE CopyFileOrgFPW[5];
+BYTE CopyFileOrgFPA[5];
 
 HANDLE WINAPI NewCreateFileW(
     _In_ LPCWSTR lpFileName,
@@ -195,5 +197,37 @@ BOOL WINAPI NewCreateDirectoryA(
                                 lpSecurityAttributes);
 
     hook_by_code("kernel32.dll", "CreateDirectoryA", (PROC)NewCreateDirectoryA, CreateDirectoryOrgFPA);
+    return ret;
+}
+
+BOOL WINAPI NewCopyFileW(
+    _In_ LPCWSTR lpExistingFileName,
+    _In_ LPCWSTR lpNewFileName,
+    _In_ BOOL bFailIfExists
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"CopyFileW");
+    unhook_by_code("kernel32.dll", "CopyFileW", CopyFileOrgFPW);
+
+    BOOL ret = CopyFileW(lpExistingFileName,
+                        lpNewFileName,
+                        bFailIfExists);
+
+    hook_by_code("kernel32.dll", "CopyFileW", (PROC)NewCopyFileW, CopyFileOrgFPW);
+    return ret;
+}
+
+BOOL WINAPI NewCopyFileA(
+    _In_ LPCSTR lpExistingFileName,
+    _In_ LPCSTR lpNewFileName,
+    _In_ BOOL bFailIfExists
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"CopyFileA");
+    unhook_by_code("kernel32.dll", "CopyFileA", CopyFileOrgFPA);
+
+    BOOL ret = CopyFileA(lpExistingFileName,
+                        lpNewFileName,
+                        bFailIfExists);
+
+    hook_by_code("kernel32.dll", "CopyFileA", (PROC)NewCopyFileA, CopyFileOrgFPA);
     return ret;
 }

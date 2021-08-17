@@ -8,6 +8,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="exception.h" />
+    <ClInclude Include="system.h" />
     <ClInclude Include="file.h" />
   </ItemGroup>
   <ItemGroup>

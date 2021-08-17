@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+#include "stdafx.h"
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
 {
@@ -25,6 +25,11 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         hook_by_code("kernel32.dll", "GetFileSize", (PROC)NewGetFileSize, GetFileSizeOrgFP);
         hook_by_code("kernel32.dll", "SetEndOfFile", (PROC)NewSetEndOfFile, SetEndOfFileOrgFP);
         hook_by_code("kernel32.dll", "SetFilePointer", (PROC)NewSetFilePointer, SetFilePointerOrgFP);
+        hook_by_code("kernel32.dll", "UnhandledExceptionFilter", (PROC)NewUnhandledExceptionFilter, UEFOrgFP);
+        hook_by_code("kernel32.dll", "SetUnhandledExceptionFilter", (PROC)NewSetUnhandledExceptionFilter, SUEFOrgFP);
+        hook_by_code("kernel32.dll", "IsDebuggerPresent", (PROC)NewIsDebuggerPresent, IDPOriFP);
+        hook_by_code("kernel32.dll", "GetSystemInfo", (PROC)NewGetSystemInfo, GSIOriFP);
+        hook_by_code("kernel32.dll", "SetErrorMode", (PROC)SetErrorMode, SEMOriFP);
         break;
     case DLL_PROCESS_DETACH:
         DebugLog("MyHook DLL_PROCESS_DETACH\n");
@@ -47,6 +52,11 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         unhook_by_code("kernel32.dll", "GetFileSize", GetFileSizeOrgFP);
         unhook_by_code("kernel32.dll", "SetEndOfFile", SetEndOfFileOrgFP);
         unhook_by_code("kernel32.dll", "SetFilePointer", SetFilePointerOrgFP);
+        unhook_by_code("kernel32.dll", "UnhandledExceptionFilter", UEFOrgFP);
+        unhook_by_code("kernel32.dll", "SetUnhandledExceptionFilter", SUEFOrgFP);
+        unhook_by_code("kernel32.dll", "IsDebuggerPresent", IDPOriFP);
+        unhook_by_code("kernel32.dll", "GetSystemInfo", GSIOriFP);
+        unhook_by_code("kernel32.dll", "SetErrorMode", SEMOriFP);
         break;
     }
     return TRUE;

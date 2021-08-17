@@ -15,6 +15,7 @@ BYTE FindFirstFileOrgFPW[5];
 BYTE FindFirstFileOrgFPA[5];
 BYTE GetFileAttributesOrgFPW[5];
 BYTE GetFileAttributesOrgFPA[5];
+BYTE GetFileSizeOrgFP[5];
 
 HANDLE WINAPI NewCreateFileW(
     _In_ LPCWSTR lpFileName,
@@ -315,5 +316,19 @@ DWORD WINAPI NewGetFileAttributesA(
     DWORD ret = GetFileAttributesA(lpFileName);
 
     hook_by_code("kernel32.dll", "GetFileAttributesA", (PROC)NewGetFileAttributesA, GetFileAttributesOrgFPA);
+    return ret;
+}
+
+DWORD WINAPI NewGetFileSize(
+    _In_ HANDLE hFile,
+    _Out_opt_ LPDWORD lpFileSizeHigh
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"GetFileSize");
+    unhook_by_code("kernel32.dll", "GetFileSize", GetFileSizeOrgFP);
+
+    DWORD ret = GetFileSize(hFile,
+                            lpFileSizeHigh);
+
+    hook_by_code("kernel32.dll", "GetFileSize", (PROC)NewGetFileAttributesA, GetFileSizeOrgFP);
     return ret;
 }

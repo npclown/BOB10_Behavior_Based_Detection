@@ -16,6 +16,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         hook_by_code("kernel32.dll", "CreateDirectoryA", (PROC)NewCreateDirectoryA, CreateDirectoryOrgFPA);
         hook_by_code("kernel32.dll", "CopyFileW", (PROC)NewCopyFileW, CopyFileOrgFPW);
         hook_by_code("kernel32.dll", "CopyFileA", (PROC)NewCopyFileA, CopyFileOrgFPA);
+        hook_by_code("kernel32.dll", "GetTempPathW", (PROC)NewGetTempPathW, GetTempPathOrgFPW);
+        hook_by_code("kernel32.dll", "GetTempPathA", (PROC)NewGetTempPathA, GetTempPathOrgFPA);
         break;
     case DLL_PROCESS_DETACH:
         DebugLog("MyHook DLL_PROCESS_DETACH\n");
@@ -29,6 +31,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         unhook_by_code("kernel32.dll", "CreateDirectoryA", CreateDirectoryOrgFPA);
         unhook_by_code("kernel32.dll", "CopyFileW", CopyFileOrgFPW);
         unhook_by_code("kernel32.dll", "CopyFileA", CopyFileOrgFPA);
+        unhook_by_code("kernel32.dll", "GetTempPathW", GetTempPathOrgFPW);
+        unhook_by_code("kernel32.dll", "GetTempPathA", GetTempPathOrgFPA);
         break;
     }
     return TRUE;

@@ -9,6 +9,8 @@ BYTE CreateDirectoryOrgFPW[5];
 BYTE CreateDirectoryOrgFPA[5];
 BYTE CopyFileOrgFPW[5];
 BYTE CopyFileOrgFPA[5];
+BYTE GetTempPathOrgFPW[5];
+BYTE GetTempPathOrgFPA[5];
 
 HANDLE WINAPI NewCreateFileW(
     _In_ LPCWSTR lpFileName,
@@ -229,5 +231,33 @@ BOOL WINAPI NewCopyFileA(
                         bFailIfExists);
 
     hook_by_code("kernel32.dll", "CopyFileA", (PROC)NewCopyFileA, CopyFileOrgFPA);
+    return ret;
+}
+
+DWORD WINAPI NewGetTempPathW(
+    _In_ DWORD nBufferLength,
+    _Out_writes_to_opt_(nBufferLength, return +1) LPWSTR lpBuffer
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"GetTempPathW");
+    unhook_by_code("kernel32.dll", "GetTempPathW", GetTempPathOrgFPW);
+
+    DWORD ret = GetTempPathW(nBufferLength,
+                            lpBuffer);
+
+    hook_by_code("kernel32.dll", "GetTempPathW", (PROC)NewGetTempPathW, GetTempPathOrgFPW);
+    return ret;
+}
+
+DWORD WINAPI NewGetTempPathA(
+    _In_ DWORD nBufferLength,
+    _Out_writes_to_opt_(nBufferLength, return +1) LPSTR lpBuffer
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"GetTempPathA");
+    unhook_by_code("kernel32.dll", "GetTempPathA", GetTempPathOrgFPA);
+
+    DWORD ret = GetTempPathA(nBufferLength,
+                            lpBuffer);
+
+    hook_by_code("kernel32.dll", "GetTempPathA", (PROC)NewGetTempPathA, GetTempPathOrgFPA);
     return ret;
 }

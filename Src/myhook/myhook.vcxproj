@@ -168,7 +168,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="exception.h" />
-    <ClInclude Include="NewCreateFile.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="system.h" />
   </ItemGroup>

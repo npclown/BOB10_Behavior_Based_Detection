@@ -1,3 +1,4 @@
+#pragma once
 BYTE IDPOriFP[5];
 BYTE GSIOriFP[5];
 BYTE SEMOriFP[5];

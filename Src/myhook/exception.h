@@ -1,3 +1,4 @@
+#pragma once
 BYTE UEFOrgFP[5];
 BYTE SUEFOrgFP[5];
 

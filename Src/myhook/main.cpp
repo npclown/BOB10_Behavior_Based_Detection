@@ -1,9 +1,4 @@
 ﻿#include "stdafx.h"
-#include <dllheader.h>
-
-#include "NewCreateFile.h"
-#include "exception.h"
-#include "system.h"
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
 {
@@ -11,8 +6,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
     {
     case DLL_PROCESS_ATTACH:
         DebugLog("MyHook DLL_PROCESS_ATTACH\n");
-        hook_by_code("kernel32.dll", "CreateFileW", (PROC)NewCreateFileW, OrgFPW);
-        hook_by_code("kernel32.dll", "CreateFileA", (PROC)NewCreateFileA, OrgFPA);
         hook_by_code("kernel32.dll", "UnhandledExceptionFilter", (PROC)NewUnhandledExceptionFilter, UEFOrgFP);
         hook_by_code("kernel32.dll", "SetUnhandledExceptionFilter", (PROC)NewSetUnhandledExceptionFilter, SUEFOrgFP);
         hook_by_code("kernel32.dll", "IsDebuggerPresent", (PROC)NewIsDebuggerPresent, IDPOriFP);
@@ -21,14 +14,11 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         break;
     case DLL_PROCESS_DETACH:
         DebugLog("MyHook DLL_PROCESS_DETACH\n");
-        unhook_by_code("kernel32.dll", "CreateFileW", OrgFPW);
-        unhook_by_code("kernel32.dll", "CreateFileA", OrgFPA);
         unhook_by_code("kernel32.dll", "UnhandledExceptionFilter", UEFOrgFP);
         unhook_by_code("kernel32.dll", "SetUnhandledExceptionFilter", SUEFOrgFP);
         unhook_by_code("kernel32.dll", "IsDebuggerPresent", IDPOriFP);
         unhook_by_code("kernel32.dll", "GetSystemInfo", GSIOriFP);
         unhook_by_code("kernel32.dll", "SetErrorMode", SEMOriFP);
-        
         break;
     }
     return TRUE;

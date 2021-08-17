@@ -17,6 +17,7 @@ BYTE GetFileAttributesOrgFPW[5];
 BYTE GetFileAttributesOrgFPA[5];
 BYTE GetFileSizeOrgFP[5];
 BYTE SetEndOfFileOrgFP[5];
+BYTE SetFilePointerOrgFP[5];
 
 HANDLE WINAPI NewCreateFileW(
     _In_ LPCWSTR lpFileName,
@@ -343,5 +344,23 @@ BOOL WINAPI NewSetEndOfFile(
     BOOL ret = SetEndOfFile(hFile);
 
     hook_by_code("kernel32.dll", "SetEndOfFile", (PROC)NewSetEndOfFile, SetEndOfFileOrgFP);
+    return ret;
+}
+
+DWORD WINAPI NewSetFilePointer(
+    _In_ HANDLE hFile,
+    _In_ LONG lDistanceToMove,
+    _Inout_opt_ PLONG lpDistanceToMoveHigh,
+    _In_ DWORD dwMoveMethod
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"SetFilePointer");
+    unhook_by_code("kernel32.dll", "SetFilePointer", SetFilePointerOrgFP);
+
+    DWORD ret = SetFilePointer(hFile,
+                                lDistanceToMove,
+                                lpDistanceToMoveHigh,
+                                dwMoveMethod);
+
+    hook_by_code("kernel32.dll", "SetFilePointer", (PROC)NewSetFilePointer, SetFilePointerOrgFP);
     return ret;
 }

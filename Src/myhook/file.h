@@ -4,6 +4,7 @@ BYTE CreateFileOrgFPA[5];
 BYTE DeleteFileOrgFPW[5];
 BYTE DeleteFileOrgFPA[5];
 BYTE ReadFileOrgFP[5];
+BYTE WriteFileOrgFP[5];
 
 HANDLE WINAPI NewCreateFileW(
     _In_ LPCWSTR lpFileName,
@@ -144,5 +145,25 @@ BOOL WINAPI NewReadFile(
                         lpOverlapped);
 
     hook_by_code("kernel32.dll", "ReadFile", (PROC)NewReadFile, ReadFileOrgFP);
+    return ret;
+}
+
+BOOL WINAPI NewWriteFile(
+    _In_ HANDLE hFile,
+    _In_reads_bytes_opt_(nNumberOfBytesToWrite) LPCVOID lpBuffer,
+    _In_ DWORD nNumberOfBytesToWrite,
+    _Out_opt_ LPDWORD lpNumberOfBytesWritten,
+    _Inout_opt_ LPOVERLAPPED lpOverlapped
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"WriteFile");
+    unhook_by_code("kernel32.dll", "WriteFile", WriteFileOrgFP);
+
+    BOOL ret = WriteFile(hFile,
+                        lpBuffer,
+                        nNumberOfBytesToWrite,
+                        lpNumberOfBytesWritten,
+                        lpOverlapped);
+
+    hook_by_code("kernel32.dll", "WriteFile", (PROC)NewWriteFile, WriteFileOrgFP);
     return ret;
 }

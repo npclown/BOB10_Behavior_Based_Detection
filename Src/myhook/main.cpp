@@ -11,6 +11,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         hook_by_code("kernel32.dll", "DeleteFileW", (PROC)NewDeleteFileW, DeleteFileOrgFPW);
         hook_by_code("kernel32.dll", "DeleteFileA", (PROC)NewDeleteFileA, DeleteFileOrgFPA);
         hook_by_code("kernel32.dll", "ReadFile", (PROC)NewReadFile, ReadFileOrgFP);
+        hook_by_code("kernel32.dll", "WriteFile", (PROC)NewWriteFile, WriteFileOrgFP);
         break;
     case DLL_PROCESS_DETACH:
         DebugLog("MyHook DLL_PROCESS_DETACH\n");
@@ -19,6 +20,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         unhook_by_code("kernel32.dll", "DeleteFileW", DeleteFileOrgFPW);
         unhook_by_code("kernel32.dll", "DeleteFileA", DeleteFileOrgFPA);
         unhook_by_code("kernel32.dll", "ReadFile", ReadFileOrgFP);
+        unhook_by_code("kernel32.dll", "WriteFile", WriteFileOrgFP);
         break;
     }
     return TRUE;

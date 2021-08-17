@@ -6,6 +6,7 @@
 #include <string>
 #include <stdarg.h>
 #include <dllheader.h>
-#include "file.h"
+//#include "NewCreateFile.h"
+#include "process.h"
 
 #define DLLNAME L"myhook.dll"

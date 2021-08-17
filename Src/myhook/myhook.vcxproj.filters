@@ -8,7 +8,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="file.h" />
+    <ClInclude Include="process.h" />
+    <ClInclude Include="NewCreateFile.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />

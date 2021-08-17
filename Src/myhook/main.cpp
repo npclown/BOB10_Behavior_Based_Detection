@@ -1,106 +1,4 @@
 ﻿#include "stdafx.h"
-#include <dllheader.h>
-
-BYTE OrgFPW[5];
-BYTE OrgFPA[5];
-
-HANDLE WINAPI NewCreateFileW(
-    _In_ LPCWSTR lpFileName,
-    _In_ DWORD dwDesiredAccess,
-    _In_ DWORD dwShareMode,
-    _In_opt_ LPSECURITY_ATTRIBUTES lpSecurityAttributes,
-    _In_ DWORD dwCreationDisposition,
-    _In_ DWORD dwFlagsAndAttributes,
-    _In_opt_ HANDLE hTemplateFile
-) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"CreateFileW");
-    unhook_by_code("kernel32.dll", "CreateFileW", OrgFPW);
-
-    if (dwDesiredAccess & (GENERIC_ALL | GENERIC_WRITE | WRITE_OWNER)) {
-        if (wcsstr(wcslwr((LP)lpFileName), L"system32") != NULL && wcsstr(wcslwr((LP)lpFileName), L".exe") == NULL) {
-            wchar_t result[512];
-            wsprintf(result, L"시스템 폴더에 접근을 시도하였습니다. \n %ls 해당 폴더의 접근을 허용하시겠습니까?\n", (LPCWSTR)lpFileName);
-            int input = MessageBox(NULL, result, L"Detected", MB_YESNO);
-            if (input == IDNO) {
-                MessageBox(NULL, L"해당 폴더을 접근을 차단하였습니다.", L"차단", MB_OK);
-                hook_by_code("kernel32.dll", "CreateFileW", (PROC)NewCreateFileW, OrgFPW);
-                return NULL;
-            }
-        }
-
-        if (wcsstr(wcslwr((LP)lpFileName), L".sys") != NULL) {
-            wchar_t result[512];
-            wsprintf(result, L"시스템 파일에 접근을 시도하였습니다. \n %ls 해당 파일의 접근을 허용하시겠습니까?\n", (LPCWSTR)lpFileName);
-            int input = MessageBox(NULL, result, L"Detected", MB_YESNO);
-            if (input == IDNO) {
-                MessageBox(NULL, L"해당 파일을 차단하였습니다.", L"차단", MB_OK);
-                hook_by_code("kernel32.dll", "CreateFileW", (PROC)NewCreateFileW, OrgFPW);
-                return NULL;
-            }
-        }
-    }
-    
-    HANDLE ret = CreateFileW(lpFileName,
-        dwDesiredAccess,
-        dwShareMode,
-        lpSecurityAttributes,
-        dwCreationDisposition,
-        dwFlagsAndAttributes,
-        hTemplateFile);
-
-    hook_by_code("kernel32.dll", "CreateFileW", (PROC)NewCreateFileW, OrgFPW);
-
-    return ret;
-}
-
-HANDLE WINAPI NewCreateFileA(
-    _In_ LPCSTR lpFileName,
-    _In_ DWORD dwDesiredAccess,
-    _In_ DWORD dwShareMode,
-    _In_opt_ LPSECURITY_ATTRIBUTES lpSecurityAttributes,
-    _In_ DWORD dwCreationDisposition,
-    _In_ DWORD dwFlagsAndAttributes,
-    _In_opt_ HANDLE hTemplateFile
-) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"CreateFileA");
-    unhook_by_code("kernel32.dll", "CreateFileA", OrgFPA);
-
-    if (dwDesiredAccess & (GENERIC_ALL | GENERIC_WRITE | WRITE_OWNER)) {
-        if (strstr(strlwr((LPSTR)lpFileName), "system32") != NULL && strstr(strlwr((LPSTR)lpFileName), ".exe") == NULL) {
-            wchar_t result[512];
-            wsprintf(result, L"시스템 폴더에 접근을 시도하였습니다. \n %ls 해당 폴더의 접근을 허용하시겠습니까?\n", (LPCSTR)lpFileName);
-            int input = MessageBox(NULL, result, L"Detected", MB_YESNO);
-            if (input == IDNO) {
-                MessageBox(NULL, L"해당 폴더을 접근을 차단하였습니다.", L"차단", MB_OK);
-                hook_by_code("kernel32.dll", "CreateFileW", (PROC)NewCreateFileW, OrgFPW);
-                return NULL;
-            }
-        }
-
-        if (strstr(strlwr((LPSTR)lpFileName), ".sys") != NULL) {
-            wchar_t result[512];
-            wsprintf(result, L"시스템 파일에 접근을 시도하였습니다. \n %ls 해당 파일의 접근을 허용하시겠습니까?\n", (LPCWSTR)lpFileName);
-            int input = MessageBox(NULL, result, L"Detected", MB_YESNO);
-            if (input == IDNO) {
-                MessageBox(NULL, L"해당 파일을 차단하였습니다.", L"차단", MB_OK);
-                    hook_by_code("kernel32.dll", "CreateFileW", (PROC)NewCreateFileW, OrgFPW);
-                return NULL;
-            }
-        }
-    }
-
-    HANDLE ret = CreateFileA(lpFileName,
-        dwDesiredAccess,
-        dwShareMode,
-        lpSecurityAttributes,
-        dwCreationDisposition,
-        dwFlagsAndAttributes,
-        hTemplateFile);
-
-    hook_by_code("kernel32.dll", "CreateFileA", (PROC)NewCreateFileA, OrgFPA);
-    DebugLog("DllMain() : NewCreateFileA\n");
-    return ret;
-}
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
 {
@@ -108,13 +6,47 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
     {
     case DLL_PROCESS_ATTACH:
         DebugLog("MyHook DLL_PROCESS_ATTACH\n");
-        hook_by_code("kernel32.dll", "CreateFileW", (PROC)NewCreateFileW, OrgFPW);
-        hook_by_code("kernel32.dll", "CreateFileA", (PROC)NewCreateFileA, OrgFPA);
+        hook_by_code("kernel32.dll", "CreateFileW", (PROC)NewCreateFileW, CreateFileOrgFPW);
+        hook_by_code("kernel32.dll", "CreateFileA", (PROC)NewCreateFileA, CreateFileOrgFPA);
+        hook_by_code("kernel32.dll", "DeleteFileW", (PROC)NewDeleteFileW, DeleteFileOrgFPW);
+        hook_by_code("kernel32.dll", "DeleteFileA", (PROC)NewDeleteFileA, DeleteFileOrgFPA);
+        hook_by_code("kernel32.dll", "ReadFile", (PROC)NewReadFile, ReadFileOrgFP);
+        hook_by_code("kernel32.dll", "WriteFile", (PROC)NewWriteFile, WriteFileOrgFP);
+        hook_by_code("kernel32.dll", "CreateDirectoryW", (PROC)NewCreateDirectoryW, CreateDirectoryOrgFPW);
+        hook_by_code("kernel32.dll", "CreateDirectoryA", (PROC)NewCreateDirectoryA, CreateDirectoryOrgFPA);
+        hook_by_code("kernel32.dll", "CopyFileW", (PROC)NewCopyFileW, CopyFileOrgFPW);
+        hook_by_code("kernel32.dll", "CopyFileA", (PROC)NewCopyFileA, CopyFileOrgFPA);
+        hook_by_code("kernel32.dll", "GetTempPathW", (PROC)NewGetTempPathW, GetTempPathOrgFPW);
+        hook_by_code("kernel32.dll", "GetTempPathA", (PROC)NewGetTempPathA, GetTempPathOrgFPA);
+        hook_by_code("kernel32.dll", "FindFirstFileW", (PROC)NewFindFirstFileW, FindFirstFileOrgFPW);
+        hook_by_code("kernel32.dll", "FindFirstFileA", (PROC)NewFindFirstFileA, FindFirstFileOrgFPA);
+        hook_by_code("kernel32.dll", "GetFileAttributesW", (PROC)NewGetFileAttributesW, GetFileAttributesOrgFPW);
+        hook_by_code("kernel32.dll", "GetFileAttributesA", (PROC)NewGetFileAttributesA, GetFileAttributesOrgFPA);
+        hook_by_code("kernel32.dll", "GetFileSize", (PROC)NewGetFileSize, GetFileSizeOrgFP);
+        hook_by_code("kernel32.dll", "SetEndOfFile", (PROC)NewSetEndOfFile, SetEndOfFileOrgFP);
+        hook_by_code("kernel32.dll", "SetFilePointer", (PROC)NewSetFilePointer, SetFilePointerOrgFP);
         break;
     case DLL_PROCESS_DETACH:
         DebugLog("MyHook DLL_PROCESS_DETACH\n");
-        unhook_by_code("kernel32.dll", "CreateFileW", OrgFPW);
-        unhook_by_code("kernel32.dll", "CreateFileA", OrgFPA);
+        unhook_by_code("kernel32.dll", "CreateFileW", CreateFileOrgFPW);
+        unhook_by_code("kernel32.dll", "CreateFileA", CreateFileOrgFPA);
+        unhook_by_code("kernel32.dll", "DeleteFileW", DeleteFileOrgFPW);
+        unhook_by_code("kernel32.dll", "DeleteFileA", DeleteFileOrgFPA);
+        unhook_by_code("kernel32.dll", "ReadFile", ReadFileOrgFP);
+        unhook_by_code("kernel32.dll", "WriteFile", WriteFileOrgFP);
+        unhook_by_code("kernel32.dll", "CreateDirectoryW", CreateDirectoryOrgFPW);
+        unhook_by_code("kernel32.dll", "CreateDirectoryA", CreateDirectoryOrgFPA);
+        unhook_by_code("kernel32.dll", "CopyFileW", CopyFileOrgFPW);
+        unhook_by_code("kernel32.dll", "CopyFileA", CopyFileOrgFPA);
+        unhook_by_code("kernel32.dll", "GetTempPathW", GetTempPathOrgFPW);
+        unhook_by_code("kernel32.dll", "GetTempPathA", GetTempPathOrgFPA);
+        unhook_by_code("kernel32.dll", "FindFirstFileW", FindFirstFileOrgFPW);
+        unhook_by_code("kernel32.dll", "FindFirstFileA", FindFirstFileOrgFPA);
+        unhook_by_code("kernel32.dll", "GetFileAttributesW", GetFileAttributesOrgFPW);
+        unhook_by_code("kernel32.dll", "GetFileAttributesA", GetFileAttributesOrgFPA);
+        unhook_by_code("kernel32.dll", "GetFileSize", GetFileSizeOrgFP);
+        unhook_by_code("kernel32.dll", "SetEndOfFile", SetEndOfFileOrgFP);
+        unhook_by_code("kernel32.dll", "SetFilePointer", SetFilePointerOrgFP);
         break;
     }
     return TRUE;

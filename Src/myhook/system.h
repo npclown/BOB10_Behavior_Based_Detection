@@ -3,7 +3,7 @@ BYTE IDPOriFP[5];
 BYTE GSIOriFP[5];
 BYTE SEMOriFP[5];
 
-BOOL WINAPI NewIsDebuggerPresent()
+BOOL WINAPI NewIsDebuggerPresent(VOID)
 {
     DebugLog("%d %ls", GetCurrentProcessId(), L"IsDebuggerPresent");
 
@@ -13,7 +13,7 @@ BOOL WINAPI NewIsDebuggerPresent()
     return ret;
 }
 
-void WINAPI NewGetSystemInfo(
+VOID WINAPI NewGetSystemInfo(
     LPSYSTEM_INFO lpSystemInfo
 ) {
     DebugLog("%d %ls", GetCurrentProcessId(), L"GetSystemInfo");
@@ -23,7 +23,7 @@ void WINAPI NewGetSystemInfo(
     hook_by_code("kernel32.dll", "GetSystemInfo", (PROC)NewGetSystemInfo, GSIOriFP);
 }
 
-UINT NewSetErrorMode(
+UINT WINAPI NewSetErrorMode(
     UINT uMode
 ) {
     DebugLog("%d %ls", GetCurrentProcessId(), L"SetErrorMode");

@@ -7,8 +7,8 @@
 #include <stdarg.h>
 #include <dllheader.h>
 
+#include "file.h"
 #include "exception.h"
 #include "system.h"
-
 
 #define DLLNAME L"myhook.dll"

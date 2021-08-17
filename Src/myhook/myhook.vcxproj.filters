@@ -9,6 +9,9 @@
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="file.h" />
+    <ClInclude Include="misc.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="synchronisation.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />

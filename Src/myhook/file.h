@@ -16,6 +16,7 @@ BYTE FindFirstFileOrgFPA[5];
 BYTE GetFileAttributesOrgFPW[5];
 BYTE GetFileAttributesOrgFPA[5];
 BYTE GetFileSizeOrgFP[5];
+BYTE SetEndOfFileOrgFP[5];
 
 HANDLE WINAPI NewCreateFileW(
     _In_ LPCWSTR lpFileName,
@@ -329,6 +330,18 @@ DWORD WINAPI NewGetFileSize(
     DWORD ret = GetFileSize(hFile,
                             lpFileSizeHigh);
 
-    hook_by_code("kernel32.dll", "GetFileSize", (PROC)NewGetFileAttributesA, GetFileSizeOrgFP);
+    hook_by_code("kernel32.dll", "GetFileSize", (PROC)NewGetFileSize, GetFileSizeOrgFP);
+    return ret;
+}
+
+BOOL WINAPI NewSetEndOfFile(
+    _In_ HANDLE hFile
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"SetEndOfFile");
+    unhook_by_code("kernel32.dll", "SetEndOfFile", SetEndOfFileOrgFP);
+
+    BOOL ret = SetEndOfFile(hFile);
+
+    hook_by_code("kernel32.dll", "SetEndOfFile", (PROC)NewSetEndOfFile, SetEndOfFileOrgFP);
     return ret;
 }

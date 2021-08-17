@@ -1,6 +1,8 @@
 ﻿#pragma once
 BYTE CreateFileOrgFPW[5];
 BYTE CreateFileOrgFPA[5];
+BYTE DeleteFileOrgFPW[5];
+BYTE DeleteFileOrgFPA[5];
 
 HANDLE WINAPI NewCreateFileW(
     _In_ LPCWSTR lpFileName,
@@ -97,5 +99,29 @@ HANDLE WINAPI NewCreateFileA(
 
     hook_by_code("kernel32.dll", "CreateFileA", (PROC)NewCreateFileA, CreateFileOrgFPA);
     DebugLog("DllMain() : NewCreateFileA\n");
+    return ret;
+}
+
+BOOL WINAPI NewDeleteFileW(
+    _In_ LPCWSTR lpFileName
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"DeleteFileW");
+    unhook_by_code("kernel32.dll", "DeleteFileW", DeleteFileOrgFPW);
+
+    BOOL ret = DeleteFileW(lpFileName);
+
+    hook_by_code("kernel32.dll", "DeleteFileW", (PROC)NewDeleteFileW, DeleteFileOrgFPW);
+    return ret;
+}
+
+BOOL WINAPI NewDeleteFileA(
+    _In_ LPCSTR lpFileName
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"DeleteFileA");
+    unhook_by_code("kernel32.dll", "DeleteFileA", DeleteFileOrgFPA);
+
+    BOOL ret = DeleteFileA(lpFileName);
+
+    hook_by_code("kernel32.dll", "DeleteFileA", (PROC)NewDeleteFileA, DeleteFileOrgFPA);
     return ret;
 }

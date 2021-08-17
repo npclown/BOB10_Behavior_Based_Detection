@@ -11,6 +11,8 @@ BYTE CopyFileOrgFPW[5];
 BYTE CopyFileOrgFPA[5];
 BYTE GetTempPathOrgFPW[5];
 BYTE GetTempPathOrgFPA[5];
+BYTE FindFirstFileOrgFPW[5];
+BYTE FindFirstFileOrgFPA[5];
 
 HANDLE WINAPI NewCreateFileW(
     _In_ LPCWSTR lpFileName,
@@ -259,5 +261,33 @@ DWORD WINAPI NewGetTempPathA(
                             lpBuffer);
 
     hook_by_code("kernel32.dll", "GetTempPathA", (PROC)NewGetTempPathA, GetTempPathOrgFPA);
+    return ret;
+}
+
+HANDLE WINAPI NewFindFirstFileW(
+    _In_ LPCWSTR lpFileName,
+    _Out_ LPWIN32_FIND_DATAW lpFindFileData
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"FindFirstFileW");
+    unhook_by_code("kernel32.dll", "FindFirstFileW", FindFirstFileOrgFPW);
+
+    HANDLE ret = FindFirstFileW(lpFileName,
+                               lpFindFileData);
+
+    hook_by_code("kernel32.dll", "FindFirstFileW", (PROC)NewFindFirstFileW, FindFirstFileOrgFPW);
+    return ret;
+}
+
+HANDLE WINAPI NewFindFirstFileA(
+    _In_ LPCSTR lpFileName,
+    _Out_ LPWIN32_FIND_DATAA lpFindFileData
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"FindFirstFileA");
+    unhook_by_code("kernel32.dll", "FindFirstFileA", FindFirstFileOrgFPA);
+
+    HANDLE ret = FindFirstFileA(lpFileName,
+                                lpFindFileData);
+
+    hook_by_code("kernel32.dll", "FindFirstFileA", (PROC)NewFindFirstFileA, FindFirstFileOrgFPA);
     return ret;
 }

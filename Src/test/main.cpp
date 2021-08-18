@@ -1,5 +1,7 @@
 #include <Windows.h>
 #include <stdio.h>
+#include <fstream>
+#include <string>
 
 void DebugLog(const char* format, ...)
 {
@@ -13,20 +15,19 @@ void DebugLog(const char* format, ...)
     OutputDebugStringA(szLog);
 }
 
-int main() {
-    printf("SN1\n");
-    DebugLog("%d %ls", GetCurrentProcessId(), L"OpenProcess");
-    DebugLog("%d %ls", GetCurrentProcessId(), L"CreateThread");
-    DebugLog("%d %ls", GetCurrentProcessId(), L"SuspendThread");
-    DebugLog("%d %ls", GetCurrentProcessId(), L"GetTickCount");
-    DebugLog("%d %ls", GetCurrentProcessId(), L"GetLocalTime");
-    DebugLog("%d %ls", GetCurrentProcessId(), L"Sleep");
-    DebugLog("%d %ls", GetCurrentProcessId(), L"ResumeThread");
-    DebugLog("%d %ls", GetCurrentProcessId(), L"CreateFileW");
-    DebugLog("%d %ls", GetCurrentProcessId(), L"FindResourceW");
-    DebugLog("%d %ls", GetCurrentProcessId(), L"WriteFile");
-    DebugLog("%d %ls", GetCurrentProcessId(), L"SetEndOfFile");
-    DebugLog("%d %ls", GetCurrentProcessId(), L"SetFilePointer");
-    //sn1 sn2 sn3
-    //keylogger 
+int main(int argc, char* argv[]) {
+    if (argc != 2) {
+        printf("\n Usage  : test.exe <filename>\n\n");
+        return -1;
+    }
+
+    std::ifstream openFile(argv[1]);
+
+    if (openFile.is_open()) {
+        std::string line;
+        while (std::getline(openFile, line)) {
+            DebugLog("%s",line.data());
+        }
+        openFile.close();
+    }
 }

@@ -9,6 +9,9 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <vector>
+#include <algorithm>
+#include "APIset.h"
 
 struct db_buffer
 {
@@ -25,7 +28,8 @@ HANDLE hEventBufferReady;
 struct db_buffer* pDBBuffer;
 
 // pid를 키로 가지고 해당 pid의 호출 api 목록을 set으로 저장하는 map : logs
-std::map<DWORD, std::set<std::string>> logs;
+//std::map<DWORD, std::set<std::string>> logs;
+std::map<DWORD, std::vector<std::string>> logs;
 std::string detach = "DETACH";
 std::string attach = "ATTACH";
 
@@ -41,7 +45,12 @@ void Get_API(DWORD pid, char* data)
 	*str_pid = std::to_string((int)pid);
 
 	if (*str_pid == (*str_data).substr(0, (*str_pid).size())) {
-		logs[pid].insert((*str_data).substr((*str_pid).size() + 1));
+		//logs[pid].insert((*str_data).substr((*str_pid).size() + 1));
+
+		// 중복체크하면서 push back
+		std::string api_name = (*str_data).substr((*str_pid).size() + 1);
+		if(std::find(logs[pid].begin(), logs[pid].end(), api_name) == logs[pid].end())
+			logs[pid].push_back(api_name);
 	}
 	else {
 		if ((*str_data).substr((*str_data).size() - 6) == detach) {
@@ -55,6 +64,128 @@ void Get_API(DWORD pid, char* data)
 	return;
 }
 // 여기까지
+
+// 딜레마이군.....
+// 호출하는 api 목록이랑 체크할 api 목록(아래 애들) 둘 다를 set으로 하면
+// 결국 detach 하기 직전에 둘이 비교하는 법 밖에 없을 듯
+// 하지만 detach 하지 않는다면???
+// 호출하는 api 목록을 vector로 처리하면 중복처리를 while 돌 때마다 계속 호출해야됨 => 너무 비효율 => 그런데 이게 최선일 듯
+// 체크할 api 목록을 vector로 처리하면 중복처리를 못하고 계속 체킹됨
+// 무엇이 최선일까......
+
+std::set<std::string> exception = Exception();
+std::set<std::string> system_ = System();
+std::set<std::string> process = Process();
+std::set<std::string> file = File();
+std::set<std::string> resource = Resource();
+std::set<std::string> misc = Misc();
+std::set<std::string> synchronisation = Synchronisation();
+
+std::vector<std::set<std::string>> ListOfAPIsets; // 위에 애들 모아놓은 것
+std::vector<int> SizeOfAPIsets;
+
+void MakeVectorAboutAPIsets()
+{
+	ListOfAPIsets.push_back(exception); // 0 (index of vec_check)
+	ListOfAPIsets.push_back(system_); // 1
+	ListOfAPIsets.push_back(process); // 2
+	ListOfAPIsets.push_back(file); // 3
+	ListOfAPIsets.push_back(resource); // 4
+	ListOfAPIsets.push_back(misc); // 5
+	ListOfAPIsets.push_back(synchronisation); // 6
+
+	SizeOfAPIsets.push_back(exception.size());
+	SizeOfAPIsets.push_back(system_.size());
+	SizeOfAPIsets.push_back(process.size());
+	SizeOfAPIsets.push_back(file.size());
+	SizeOfAPIsets.push_back(resource.size());
+	SizeOfAPIsets.push_back(misc.size());
+	SizeOfAPIsets.push_back(synchronisation.size());
+}
+
+std::map<DWORD, int> IdxOfVecOfPid; // 해당 pid의 중복 없는 vector의 체크 대상 idx 저장, key = pid value = idx
+std::map<DWORD, std::vector<int>> CountingOfAPIsOfPid; // 해당 pid에 대해 check_list의 set 목록에 몇 개가 체크되고 있는지 확인
+
+void Init_IdxOfVecPid(DWORD pid)
+{
+	IdxOfVecOfPid[pid] = 0;
+}
+
+void Init_CountingOfAPIsOfPid(DWORD pid)
+{
+	CountingOfAPIsOfPid[pid].clear();
+	CountingOfAPIsOfPid[pid].resize(ListOfAPIsets.size(), 0);
+}
+
+void CountAPI(std::string s, DWORD pid)
+{
+	std::set<std::string>::iterator iter;
+
+	// i : 위의 0 ~ 6에 해당
+	for (int i = 0; i < ListOfAPIsets.size(); i++) {
+
+		iter = ListOfAPIsets[i].find(s);
+		if (iter != ListOfAPIsets[i].end()) {
+
+			if (CountingOfAPIsOfPid[pid].empty()) {
+				Init_CountingOfAPIsOfPid(pid);
+			}
+
+			CountingOfAPIsOfPid[pid][i]++;
+
+			break;
+		}
+	}
+}
+
+// 얘가 악성인지 판단
+bool check_condition(DWORD pid)
+{
+	int cnt_set = 0; // 몇 개의 목록이 만족하는지 체크
+
+	for (int i = 0; i < CountingOfAPIsOfPid[pid].size(); i++) {
+
+		// i번째 목록에 대해 조건 만족하는지 체크
+		// 조건 = i번째 목록의 전체 api 개수 중 절반 이상인지
+		if (CountingOfAPIsOfPid[pid][i] >= (SizeOfAPIsets[i] / 2)) {
+			cnt_set++;
+		}
+	}
+
+	if (cnt_set >= (SizeOfAPIsets.size() / 2)) {
+		return true;
+	}
+	else
+		return false;
+}
+
+bool isKeyLogger(DWORD pid)
+{
+	// logs[pid] 는 중복 없는 vector of strings
+	int idx = IdxOfVecOfPid[pid];
+
+	for (int i = idx; i < logs[pid].size(); i++) {
+		
+		std::string str = logs[pid][i];
+
+		if (str.back() == 'W' || str.back() == 'A') {
+			logs[pid][i] = str.substr(0, str.size() - 1);
+		}
+
+		CountAPI(str, pid);
+
+		bool check = check_condition(pid);
+
+		if (check) {
+			Init_IdxOfVecPid(pid);
+			Init_CountingOfAPIsOfPid(pid);
+			return true;
+		}
+	}
+
+	IdxOfVecOfPid[pid] += ((int)(logs[pid].size()) - idx);
+	return false;
+}
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -138,6 +269,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	// 행 별로 0번째에 해당 process 경로 (이름 포함), 1번째에 해당 pid 2번째부터 api 이름
 	std::ofstream writeFile;
 	writeFile.open("logs.csv");
+	//writeFile.open("logs.txt");
+	MakeVectorAboutAPIsets();
 
 	while (isRunning)
 	{
@@ -146,11 +279,12 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		if (mb == WAIT_OBJECT_0) {
 
-			printf("[%d] %s\n", pDBBuffer->dwProcessId, pDBBuffer->data);
-			Get_API(pDBBuffer->dwProcessId, pDBBuffer->data);
-
 			try {
+				Get_API(pDBBuffer->dwProcessId, pDBBuffer->data);
+				printf("[%d] %s\n", pDBBuffer->dwProcessId, pDBBuffer->data);
+
 				HANDLE process_handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pDBBuffer->dwProcessId);
+				
 				if (process_handle) {
 					wchar_t buffer[MAX_PATH] = {};
 					DWORD buffer_size = MAX_PATH;
@@ -167,6 +301,11 @@ int _tmain(int argc, _TCHAR* argv[])
 						writeFile << '\n';
 					}
 				}
+				bool keylogger_check = isKeyLogger(pDBBuffer->dwProcessId);
+				if (keylogger_check) {
+					printf("[%d] is key logger\n", pDBBuffer->dwProcessId);
+				}
+
 				CloseHandle(process_handle);
 			}
 			catch (int exception) {

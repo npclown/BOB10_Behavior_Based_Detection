@@ -301,7 +301,6 @@ int _tmain(int argc, _TCHAR* argv[])
 						writeFile << '\n';
 					}
 				}
-
 				bool keylogger_check = isKeyLogger(pDBBuffer->dwProcessId);
 				if (keylogger_check) {
 					printf("[%d] is key logger\n", pDBBuffer->dwProcessId);

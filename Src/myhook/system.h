@@ -3,7 +3,7 @@ BYTE IDPOriFP[5];
 BYTE GSIOriFP[5];
 BYTE SEMOriFP[5];
 BYTE GetNativeSystemInfoOrgFP[5];
-BYTE OutputDebugStringAOrgFP[5];
+BYTE OutputDebugStringAOrgFPA[5];
 
 BOOL WINAPI NewIsDebuggerPresent(VOID)
 {
@@ -51,7 +51,7 @@ VOID WINAPI NewOutputDebugStringA(
 ) {
     DebugLog("%d %ls", GetCurrentProcessId(), L"OutputDebugStringA");
 
-    unhook_by_code("kernel32.dll", "OutputDebugStringA", OutputDebugStringAOrgFP);
+    unhook_by_code("kernel32.dll", "OutputDebugStringA", OutputDebugStringAOrgFPA);
     OutputDebugStringA(lpOutputString);
-    hook_by_code("kernel32.dll", "OutputDebugStringA", (PROC)NewOutputDebugStringA, OutputDebugStringAOrgFP);
+    hook_by_code("kernel32.dll", "OutputDebugStringA", (PROC)NewOutputDebugStringA, OutputDebugStringAOrgFPA);
 }

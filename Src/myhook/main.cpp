@@ -31,6 +31,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         hook_by_code("kernel32.dll", "FindResourceW", (PROC)NewFindResourceW, OrgFRW);
         hook_by_code("kernel32.dll", "LoadResource", (PROC)NewLoadResource, OrgLR);
         hook_by_code("kernel32.dll", "SizeofResource", (PROC)NewSizeofResource, OrgSR);
+        hook_by_code("kernel32.dll", "FindResourceExA", (PROC)NewFindResourceExA, FindResourceExAOrgFPA);
+        hook_by_code("kernel32.dll", "FindResourceExW", (PROC)NewFindResourceExW, FindResourceExWOrgFPW);
         //misc.h
         hook_by_code("kernel32.dll", "GetTimeZoneInformation", (PROC)NewGetTimeZoneInformation, OrgGTZ);
         hook_by_code("kernel32.dll", "GetComputerNameA", (PROC)NewGetComputerNameA, OrgGCA);
@@ -50,7 +52,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         hook_by_code("kernel32.dll", "GetSystemInfo", (PROC)NewGetSystemInfo, GSIOriFP);
         hook_by_code("kernel32.dll", "SetErrorMode", (PROC)NewSetErrorMode, SEMOriFP);
         hook_by_code("kernel32.dll", "GetNativeSystemInfo", (PROC)NewGetNativeSystemInfo, GetNativeSystemInfoOrgFP);
-        hook_by_code("kernel32.dll", "OutputDebugStringA", (PROC)NewOutputDebugStringA, OutputDebugStringAOrgFP);
+        hook_by_code("kernel32.dll", "OutputDebugStringA", (PROC)NewOutputDebugStringA, OutputDebugStringAOrgFPA);
         //process.h
         hook_by_code("kernel32.dll", "OpenProcess", (PROC)NewOpenProcess, OP_OrgFP);
         hook_by_code("kernel32.dll", "TerminateProcess", (PROC)NewTerminateProcess, TP_OrgFP);
@@ -85,6 +87,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         unhook_by_code("kernel32.dll", "FindResourceW", OrgFRW);
         unhook_by_code("kernel32.dll", "LoadResource", OrgLR);
         unhook_by_code("kernel32.dll", "SizeofResource", OrgSR);
+        unhook_by_code("kernel32.dll", "FindResourceExA", FindResourceExAOrgFPA);
+        unhook_by_code("kernel32.dll", "FindResourceExW", FindResourceExWOrgFPW);
         //misc.h
         unhook_by_code("kernel32.dll", "GetTimeZoneInformation", OrgGTZ);
         unhook_by_code("kernel32.dll", "GetDiskFreeSpaceW", OrgGDW);
@@ -103,6 +107,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         //unhook_by_code("kernel32.dll", "IsDebuggerPresent", IDPOriFP);
         unhook_by_code("kernel32.dll", "GetSystemInfo", GSIOriFP);
         unhook_by_code("kernel32.dll", "SetErrorMode", SEMOriFP);
+        unhook_by_code("kernel32.dll", "GetNativeSystemInfo", GetNativeSystemInfoOrgFP);
+        unhook_by_code("kernel32.dll", "OutputDebugStringA", OutputDebugStringAOrgFPA);
         //process.h
         unhook_by_code("kernel32.dll", "OpenProcess", OP_OrgFP);
         unhook_by_code("kernel32.dll", "TerminateProcess", TP_OrgFP);

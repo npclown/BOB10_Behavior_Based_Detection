@@ -61,6 +61,12 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         hook_by_code("kernel32.dll", "CreateThread", (PROC)NewCreateThread, CT_OrgFP);
         hook_by_code("kernel32.dll", "ResumeThread", (PROC)NewResumeThread, RT_OrgFP);
         hook_by_code("kernel32.dll", "SuspendThread", (PROC)NewSuspendThread, ST_OrgFP);
+        hook_by_code("kernel32.dll", "Module32FirstW", (PROC)NewModule32FirstW, Module32FirstWOrgFPW);
+        hook_by_code("kernel32.dll", "Module32NextW", (PROC)NewModule32NextW, Module32NextWOrgFPW);
+        hook_by_code("kernel32.dll", "Process32FirstW", (PROC)NewProcess32FirstW, Process32FirstWOrgFPW);
+        hook_by_code("kernel32.dll", "Process32NextW", (PROC)NewProcess32NextW, Process32NextWOrgFPW);
+        hook_by_code("kernel32.dll", "Thread32First", (PROC)NewThread32First, Thread32FirstOrgFP);
+        hook_by_code("kernel32.dll", "Thread32Next", (PROC)NewThread32Next, Thread32NextOrgFP);
         break;
     case DLL_PROCESS_DETACH:
         DebugLog("MyHook DLL_PROCESS_DETACH\n");
@@ -119,6 +125,12 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         unhook_by_code("kernel32.dll", "CreateThread", CT_OrgFP);
         unhook_by_code("kernel32.dll", "ResumeThread", RT_OrgFP);
         unhook_by_code("kernel32.dll", "SuspendThread", ST_OrgFP);
+        unhook_by_code("kernel32.dll", "Module32FirstW", Module32FirstWOrgFPW);
+        unhook_by_code("kernel32.dll", "Module32NextW", Module32NextWOrgFPW);
+        unhook_by_code("kernel32.dll", "Process32FirstW", Process32FirstWOrgFPW);
+        unhook_by_code("kernel32.dll", "Process32NextW", Process32NextWOrgFPW);
+        unhook_by_code("kernel32.dll", "Thread32First", Thread32FirstOrgFP);
+        unhook_by_code("kernel32.dll", "Thread32Next", Thread32NextOrgFP);
         break;
     }
     return TRUE;

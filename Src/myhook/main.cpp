@@ -54,7 +54,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         hook_by_code("kernel32.dll", "GetSystemInfo", (PROC)NewGetSystemInfo, GSIOriFP);
         hook_by_code("kernel32.dll", "SetErrorMode", (PROC)NewSetErrorMode, SEMOriFP);
         hook_by_code("kernel32.dll", "GetNativeSystemInfo", (PROC)NewGetNativeSystemInfo, GetNativeSystemInfoOrgFP);
-        hook_by_code("kernel32.dll", "OutputDebugStringA", (PROC)NewOutputDebugStringA, OutputDebugStringAOrgFPA);
+        //hook_by_code("kernel32.dll", "OutputDebugStringA", (PROC)NewOutputDebugStringA, OutputDebugStringAOrgFPA);
         //process.h
         hook_by_code("kernel32.dll", "OpenProcess", (PROC)NewOpenProcess, OP_OrgFP);
         hook_by_code("kernel32.dll", "TerminateProcess", (PROC)NewTerminateProcess, TP_OrgFP);
@@ -122,7 +122,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         unhook_by_code("kernel32.dll", "GetSystemInfo", GSIOriFP);
         unhook_by_code("kernel32.dll", "SetErrorMode", SEMOriFP);
         unhook_by_code("kernel32.dll", "GetNativeSystemInfo", GetNativeSystemInfoOrgFP);
-        unhook_by_code("kernel32.dll", "OutputDebugStringA", OutputDebugStringAOrgFPA);
+        //unhook_by_code("kernel32.dll", "OutputDebugStringA", OutputDebugStringAOrgFPA);
         //process.h
         unhook_by_code("kernel32.dll", "OpenProcess", OP_OrgFP);
         unhook_by_code("kernel32.dll", "TerminateProcess", TP_OrgFP);

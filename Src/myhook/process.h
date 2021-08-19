@@ -12,6 +12,8 @@ BYTE Thread32FirstOrgFP[5];
 BYTE Thread32NextOrgFP[5];
 BYTE ReadProcessMemoryOrgFP[5];
 BYTE WriteProcessMemoryOrgFP[5];
+BYTE CreateRemoteThreadOrgFP[5];
+BYTE CreateToolhelp32SnapshotOrgFP[5];
 
 HANDLE WINAPI NewOpenProcess(
     DWORD dwDesiredAccess,
@@ -189,5 +191,41 @@ BOOL WINAPI NewWriteProcessMemory(
                                 nSize,
                                 lpNumberOfBytesWritten);
     hook_by_code("kernel32.dll", "WriteProcessMemory", (PROC)NewWriteProcessMemory, WriteProcessMemoryOrgFP);
+    return ret;
+}
+
+HANDLE WINAPI NewCreateRemoteThread(
+    _In_ HANDLE hProcess,
+    _In_opt_ LPSECURITY_ATTRIBUTES lpThreadAttributes,
+    _In_ SIZE_T dwStackSize,
+    _In_ LPTHREAD_START_ROUTINE lpStartAddress,
+    _In_opt_ LPVOID lpParameter,
+    _In_ DWORD dwCreationFlags,
+    _Out_opt_ LPDWORD lpThreadId
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"CreateRemoteThread");
+    unhook_by_code("kernel32.dll", "CreateRemoteThread", CreateRemoteThreadOrgFP);
+
+    HANDLE ret = CreateRemoteThread(hProcess,
+                                    lpThreadAttributes,
+                                    dwStackSize,
+                                    lpStartAddress,
+                                    lpParameter,
+                                    dwCreationFlags,
+                                    lpThreadId);
+    hook_by_code("kernel32.dll", "CreateRemoteThread", (PROC)NewCreateRemoteThread, CreateRemoteThreadOrgFP);
+    return ret;
+}
+
+HANDLE WINAPI NewCreateToolhelp32Snapshot(
+    DWORD dwFlags,
+    DWORD th32ProcessID
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"CreateToolhelp32Snapshot");
+    unhook_by_code("kernel32.dll", "CreateToolhelp32Snapshot", CreateToolhelp32SnapshotOrgFP);
+
+    HANDLE ret = CreateToolhelp32Snapshot(dwFlags,
+                                           th32ProcessID);
+    hook_by_code("kernel32.dll", "CreateToolhelp32Snapshot", (PROC)NewCreateToolhelp32Snapshot, CreateToolhelp32SnapshotOrgFP);
     return ret;
 }

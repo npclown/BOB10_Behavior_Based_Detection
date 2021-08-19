@@ -39,6 +39,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         hook_by_code("kernel32.dll", "GetComputerNameW", (PROC)NewGetComputerNameW, OrgGCW);
         hook_by_code("kernel32.dll", "GetDiskFreeSpaceA", (PROC)NewGetDiskFreeSpaceA, OrgGDA);
         hook_by_code("kernel32.dll", "GetDiskFreeSpaceW", (PROC)NewGetDiskFreeSpaceW, OrgGDW);
+        hook_by_code("kernel32.dll", "WriteConsoleA", (PROC)NewWriteConsoleA, WriteConsoleAOrgFPA);
+        hook_by_code("kernel32.dll", "WriteConsoleW", (PROC)NewWriteConsoleW, WriteConsoleWOrgFPW);
         //synchronisation.h
         //hook_by_code("kernel32.dll", "GetTickCount", (PROC)NewGetTickCount, OrgGTC);
         hook_by_code("kernel32.dll", "GetLocalTime", (PROC)NewGetLocalTime, OrgGLT);
@@ -95,6 +97,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         unhook_by_code("kernel32.dll", "GetDiskFreeSpaceA", OrgGDA);
         unhook_by_code("kernel32.dll", "GetComputerNameW", OrgGCW);
         unhook_by_code("kernel32.dll", "GetComputerNameA", OrgGCA);
+        unhook_by_code("kernel32.dll", "WriteConsoleA",  WriteConsoleAOrgFPA);
+        unhook_by_code("kernel32.dll", "WriteConsoleW", WriteConsoleWOrgFPW);
         //synchronisation.h
         //unhook_by_code("kernel32.dll", "GetTickCount", OrgGTC);
         unhook_by_code("kernel32.dll", "GetLocalTime", OrgGLT);

@@ -28,7 +28,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         hook_by_code("kernel32.dll", "SetFilePointer", (PROC)NewSetFilePointer, SetFilePointerOrgFP);
         //resource.h
         hook_by_code("kernel32.dll", "FindResourceA", (PROC)NewFindResourceA, OrgFRA);
-        hook_by_code("kernel32.dll", "FindResourceA", (PROC)NewFindResourceW, OrgFRW);
+        hook_by_code("kernel32.dll", "FindResourceW", (PROC)NewFindResourceW, OrgFRW);
         hook_by_code("kernel32.dll", "LoadResource", (PROC)NewLoadResource, OrgLR);
         hook_by_code("kernel32.dll", "SizeofResource", (PROC)NewSizeofResource, OrgSR);
         //misc.h
@@ -49,6 +49,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         //hook_by_code("kernel32.dll", "IsDebuggerPresent", (PROC)NewIsDebuggerPresent, IDPOriFP);
         hook_by_code("kernel32.dll", "GetSystemInfo", (PROC)NewGetSystemInfo, GSIOriFP);
         hook_by_code("kernel32.dll", "SetErrorMode", (PROC)NewSetErrorMode, SEMOriFP);
+        hook_by_code("kernel32.dll", "GetNativeSystemInfo", (PROC)NewGetNativeSystemInfo, GetNativeSystemInfoOrgFP);
+        hook_by_code("kernel32.dll", "OutputDebugStringA", (PROC)NewOutputDebugStringA, OutputDebugStringAOrgFP);
         //process.h
         hook_by_code("kernel32.dll", "OpenProcess", (PROC)NewOpenProcess, OP_OrgFP);
         hook_by_code("kernel32.dll", "TerminateProcess", (PROC)NewTerminateProcess, TP_OrgFP);

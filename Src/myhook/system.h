@@ -2,6 +2,8 @@
 BYTE IDPOriFP[5];
 BYTE GSIOriFP[5];
 BYTE SEMOriFP[5];
+BYTE GetNativeSystemInfoOrgFP[5];
+BYTE OutputDebugStringAOrgFP[5];
 
 BOOL WINAPI NewIsDebuggerPresent(VOID)
 {
@@ -32,4 +34,24 @@ UINT WINAPI NewSetErrorMode(
     UINT ret = SetErrorMode(uMode);
     hook_by_code("kernel32.dll", "SetErrorMode", (PROC)NewSetErrorMode, SEMOriFP);
     return ret;
+}
+
+VOID WINAPI NewGetNativeSystemInfo(
+    _Out_ LPSYSTEM_INFO lpSystemInfo
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"GetNativeSystemInfo");
+
+    unhook_by_code("kernel32.dll", "GetNativeSystemInfo", GetNativeSystemInfoOrgFP);
+    GetNativeSystemInfo(lpSystemInfo);
+    hook_by_code("kernel32.dll", "GetNativeSystemInfo", (PROC)NewGetNativeSystemInfo, GetNativeSystemInfoOrgFP);
+}
+
+VOID WINAPI NewOutputDebugStringA(
+    _In_opt_ LPCSTR lpOutputString
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"OutputDebugStringA");
+
+    unhook_by_code("kernel32.dll", "OutputDebugStringA", OutputDebugStringAOrgFP);
+    OutputDebugStringA(lpOutputString);
+    hook_by_code("kernel32.dll", "OutputDebugStringA", (PROC)NewOutputDebugStringA, OutputDebugStringAOrgFP);
 }

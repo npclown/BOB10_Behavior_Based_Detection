@@ -67,6 +67,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         hook_by_code("kernel32.dll", "Process32NextW", (PROC)NewProcess32NextW, Process32NextWOrgFPW);
         hook_by_code("kernel32.dll", "Thread32First", (PROC)NewThread32First, Thread32FirstOrgFP);
         hook_by_code("kernel32.dll", "Thread32Next", (PROC)NewThread32Next, Thread32NextOrgFP);
+        hook_by_code("kernel32.dll", "ReadProcessMemory", (PROC)NewReadProcessMemory, ReadProcessMemoryOrgFP);
+        hook_by_code("kernel32.dll", "WriteProcessMemory", (PROC)NewWriteProcessMemory, WriteProcessMemoryOrgFP);
         break;
     case DLL_PROCESS_DETACH:
         DebugLog("MyHook DLL_PROCESS_DETACH\n");
@@ -131,6 +133,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         unhook_by_code("kernel32.dll", "Process32NextW", Process32NextWOrgFPW);
         unhook_by_code("kernel32.dll", "Thread32First", Thread32FirstOrgFP);
         unhook_by_code("kernel32.dll", "Thread32Next", Thread32NextOrgFP);
+        unhook_by_code("kernel32.dll", "ReadProcessMemory", ReadProcessMemoryOrgFP);
+        unhook_by_code("kernel32.dll", "WriteProcessMemory", WriteProcessMemoryOrgFP);
         break;
     }
     return TRUE;

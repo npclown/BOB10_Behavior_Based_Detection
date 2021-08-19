@@ -10,6 +10,8 @@ BYTE Process32FirstWOrgFPW[5];
 BYTE Process32NextWOrgFPW[5];
 BYTE Thread32FirstOrgFP[5];
 BYTE Thread32NextOrgFP[5];
+BYTE ReadProcessMemoryOrgFP[5];
+BYTE WriteProcessMemoryOrgFP[5];
 
 HANDLE WINAPI NewOpenProcess(
     DWORD dwDesiredAccess,
@@ -149,5 +151,43 @@ BOOL WINAPI NewThread32Next(
     BOOL ret = Thread32Next(hSnapshot,
                             lpte);
     hook_by_code("kernel32.dll", "Thread32Next", (PROC)NewThread32Next, Thread32NextOrgFP);
+    return ret;
+}
+
+BOOL WINAPI NewReadProcessMemory(
+    _In_ HANDLE hProcess,
+    _In_ LPCVOID lpBaseAddress,
+    _Out_writes_bytes_to_(nSize, *lpNumberOfBytesRead) LPVOID lpBuffer,
+    _In_ SIZE_T nSize,
+    _Out_opt_ SIZE_T* lpNumberOfBytesRead
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"ReadProcessMemory");
+    unhook_by_code("kernel32.dll", "ReadProcessMemory", ReadProcessMemoryOrgFP);
+
+    BOOL ret = ReadProcessMemory(hProcess,
+                                lpBaseAddress,
+                                lpBuffer,
+                                nSize,
+                                lpNumberOfBytesRead);
+    hook_by_code("kernel32.dll", "ReadProcessMemory", (PROC)NewReadProcessMemory, ReadProcessMemoryOrgFP);
+    return ret;
+}
+
+BOOL WINAPI NewWriteProcessMemory(
+    _In_ HANDLE hProcess,
+    _In_ LPVOID lpBaseAddress,
+    _In_reads_bytes_(nSize) LPCVOID lpBuffer,
+    _In_ SIZE_T nSize,
+    _Out_opt_ SIZE_T* lpNumberOfBytesWritten
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"WriteProcessMemory");
+    unhook_by_code("kernel32.dll", "WriteProcessMemory", WriteProcessMemoryOrgFP);
+
+    BOOL ret = WriteProcessMemory(hProcess,
+                                lpBaseAddress,
+                                lpBuffer,
+                                nSize,
+                                lpNumberOfBytesWritten);
+    hook_by_code("kernel32.dll", "WriteProcessMemory", (PROC)NewWriteProcessMemory, WriteProcessMemoryOrgFP);
     return ret;
 }

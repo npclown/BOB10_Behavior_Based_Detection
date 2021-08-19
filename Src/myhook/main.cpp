@@ -7,6 +7,21 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
     case DLL_PROCESS_ATTACH:
         DebugLog("MyHook DLL_PROCESS_ATTACH\n");
         //file.h
+        hook_by_code("kernel32.dll", "SetFileInformationByHandle", (PROC)NewSetFileInformationByHandle, SetFileInformationByHandleOrgFP);
+        hook_by_code("kernel32.dll", "SetFileAttributesW", (PROC)NewSetFileAttributesW, SetFileAttributesWOrgFP);
+        hook_by_code("kernel32.dll", "SearchPathW", (PROC)NweSearchPathW, SearchPathWOrgFP);
+        hook_by_code("kernel32.dll", "RemoveDirectoryW", (PROC)NewRemoveDirectoryW, RemoveDirectoryWOrgFP);
+        hook_by_code("kernel32.dll", "MoveFileWithProgressW", (PROC)NewMoveFileWithProgressW, MoveFileWithProgressWOrgFp);
+        hook_by_code("kernel32.dll", "GetVolumePathNameW", (PROC)NewGetVolumePathNameW, GetVolumePathNameWOrgFP);
+        hook_by_code("kernel32.dll", "GetVolumePathNamesForVolumeNameW", (PROC)NewGetVolumePathNamesForVolumeNameW, GetVolumePathNamesForVolumeNameWOrgFP);
+        hook_by_code("kernel32.dll", "GetVolumeNameForVolumeMountPointW", (PROC)NewGetVolumeNameForVolumeMountPointW, GetVolumeNameForVolumeMountPointWOrgFP);
+        hook_by_code("kernel32.dll", "GetSystemWindowsDirectoryW", (PROC)NewGetSystemWindowsDirectoryW, GetSystemWindowsDirectoryWOrgFP);
+        hook_by_code("kernel32.dll", "GetSystemDirectoryW", (PROC)NewGetSystemDirectoryW, GetSystemDirectoryWOrgFP);
+        hook_by_code("kernel32.dll", "GetShortPathNameW", (PROC)NewGetShortPathNameW, GetShortPathNameWOrgFP);
+        hook_by_code("kernel32.dll", "GetFileType", (PROC)NewGetFileType, GetFileTypeOrgFP);
+        hook_by_code("kernel32.dll", "GetFileInformationByHandle", (PROC)NewGetFileInformationByHandle, GetFileInformationByHandleOrgFP);
+        hook_by_code("kernel32.dll", "GetFileInformationByHandleEx", (PROC)NewGetFileInformationByHandleEx, GetFileInformationByHandleExOrgFP);
+
         hook_by_code("kernel32.dll", "CreateFileW", (PROC)NewCreateFileW, CreateFileOrgFPW);
         hook_by_code("kernel32.dll", "CreateFileA", (PROC)NewCreateFileA, CreateFileOrgFPA);
         hook_by_code("kernel32.dll", "DeleteFileW", (PROC)NewDeleteFileW, DeleteFileOrgFPW);
@@ -75,6 +90,22 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
     case DLL_PROCESS_DETACH:
         DebugLog("MyHook DLL_PROCESS_DETACH\n");
         //file.h
+        unhook_by_code("kernel32.dll", "SetFileInformationByHandle", SetFileInformationByHandleOrgFP);
+        unhook_by_code("kernel32.dll", "SetFileAttributesW", SetFileAttributesWOrgFP);
+        unhook_by_code("kernel32.dll", "SearchPathW", SearchPathWOrgFP);
+        unhook_by_code("kernel32.dll", "RemoveDirectoryW", RemoveDirectoryWOrgFP);
+        unhook_by_code("kernel32.dll", "MoveFileWithProgressW", MoveFileWithProgressWOrgFp);
+        unhook_by_code("kernel32.dll", "GetVolumePathNameW", GetVolumePathNameWOrgFP);
+        unhook_by_code("kernel32.dll", "GetVolumePathNamesForVolumeNameW", GetVolumePathNamesForVolumeNameWOrgFP);
+        unhook_by_code("kernel32.dll", "GetVolumeNameForVolumeMountPointW", GetVolumeNameForVolumeMountPointWOrgFP);
+        unhook_by_code("kernel32.dll", "GetSystemWindowsDirectoryW", GetSystemWindowsDirectoryWOrgFP);
+        unhook_by_code("kernel32.dll", "GetSystemDirectoryW", GetSystemDirectoryWOrgFP);
+        unhook_by_code("kernel32.dll", "GetShortPathNameW", GetShortPathNameWOrgFP);
+        unhook_by_code("kernel32.dll", "GetFileType", GetFileTypeOrgFP);
+        unhook_by_code("kernel32.dll", "GetFileInformationByHandle", GetFileInformationByHandleOrgFP);
+        unhook_by_code("kernel32.dll", "GetFileInformationByHandleEx", GetFileInformationByHandleExOrgFP);
+
+
         unhook_by_code("kernel32.dll", "CreateFileW", CreateFileOrgFPW);
         unhook_by_code("kernel32.dll", "CreateFileA", CreateFileOrgFPA);
         unhook_by_code("kernel32.dll", "DeleteFileW", DeleteFileOrgFPW);

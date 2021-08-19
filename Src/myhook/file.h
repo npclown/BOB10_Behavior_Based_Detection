@@ -18,6 +18,275 @@ BYTE GetFileAttributesOrgFPA[5];
 BYTE GetFileSizeOrgFP[5];
 BYTE SetEndOfFileOrgFP[5];
 BYTE SetFilePointerOrgFP[5];
+BYTE GetFileInformationByHandleOrgFP[5];
+BYTE GetFileInformationByHandleExOrgFP[5];
+BYTE GetFileTypeOrgFP[5];
+BYTE GetShortPathNameWOrgFP[5];
+BYTE GetSystemDirectoryAOrgFP[5];
+BYTE GetSystemDirectoryWOrgFP[5];
+BYTE GetSystemWindowsDirectoryWOrgFP[5];
+BYTE GetVolumeNameForVolumeMountPointWOrgFP[5];
+BYTE GetVolumePathNamesForVolumeNameWOrgFP[5];
+BYTE GetVolumePathNameWOrgFP[5];
+BYTE MoveFileWithProgressWOrgFp[5];
+BYTE RemoveDirectoryWOrgFP[5];
+BYTE SearchPathWOrgFP[5];
+BYTE SetFileAttributesWOrgFP[5];
+BYTE SetFileInformationByHandleOrgFP[5];
+
+BOOL WINAPI NewSetFileInformationByHandle(
+    HANDLE                    hFile,
+    FILE_INFO_BY_HANDLE_CLASS FileInformationClass,
+    LPVOID                    lpFileInformation,
+    DWORD                     dwBufferSize
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"SetFileInformationByHandle");
+    unhook_by_code("kernel32.dll", "SetFileInformationByHandle", SetFileInformationByHandleOrgFP);
+
+    BOOL ret = SetFileInformationByHandle(
+        hFile,
+        FileInformationClass,
+        lpFileInformation,
+        dwBufferSize
+    );
+    hook_by_code("kernel32.dll", "SetFileInformationByHandle", (PROC)NewSetFileInformationByHandle, SetFileInformationByHandleOrgFP);
+    return ret;
+}
+
+BOOL WINAPI NewSetFileAttributesW(
+    LPCWSTR lpFileName,
+    DWORD   dwFileAttributes
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"SetFileAttributesW");
+    unhook_by_code("kernel32.dll", "SetFileAttributesW", SetFileAttributesWOrgFP);
+
+    BOOL ret = SetFileAttributesW(
+        lpFileName,
+        dwFileAttributes
+    );
+    hook_by_code("kernel32.dll", "SetFileAttributesW", (PROC)NewSetFileAttributesW, SetFileAttributesWOrgFP);
+    return ret;
+}
+
+DWORD WINAPI NweSearchPathW(
+    LPCWSTR lpPath,
+    LPCWSTR lpFileName,
+    LPCWSTR lpExtension,
+    DWORD   nBufferLength,
+    LPWSTR  lpBuffer,
+    LPWSTR* lpFilePart
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"SearchPathW");
+    unhook_by_code("kernel32.dll", "SearchPathW", SearchPathWOrgFP);
+
+    BOOL ret = SearchPathW(
+        lpPath,
+        lpFileName,
+        lpExtension,
+        nBufferLength,
+        lpBuffer,
+        lpFilePart
+    );
+    hook_by_code("kernel32.dll", "SearchPathW", (PROC)NweSearchPathW, SearchPathWOrgFP);
+    return ret;
+}
+
+BOOL WINAPI NewRemoveDirectoryW(
+    LPCWSTR lpPathName
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"RemoveDirectoryW");
+    unhook_by_code("kernel32.dll", "RemoveDirectoryW", RemoveDirectoryWOrgFP);
+
+    BOOL ret = RemoveDirectoryW(
+        lpPathName
+    );
+    hook_by_code("kernel32.dll", "RemoveDirectoryW", (PROC)NewRemoveDirectoryW, RemoveDirectoryWOrgFP);
+    return ret;
+}
+
+BOOL WINAPI NewMoveFileWithProgressW(
+    LPCWSTR            lpExistingFileName,
+    LPCWSTR            lpNewFileName,
+    LPPROGRESS_ROUTINE lpProgressRoutine,
+    LPVOID             lpData,
+    DWORD              dwFlags
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"MoveFileWithProgressW");
+    unhook_by_code("kernel32.dll", "MoveFileWithProgressW", MoveFileWithProgressWOrgFp);
+
+    BOOL ret = MoveFileWithProgressW(
+        lpExistingFileName,
+        lpNewFileName,
+        lpProgressRoutine,
+        lpData,
+        dwFlags
+    );
+    hook_by_code("kernel32.dll", "MoveFileWithProgressW", (PROC)NewMoveFileWithProgressW, MoveFileWithProgressWOrgFp);
+    return ret;
+}
+
+BOOL WINAPI NewGetVolumePathNameW(
+    LPCWSTR lpszFileName,
+    LPWSTR  lpszVolumePathName,
+    DWORD   cchBufferLength
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"GetVolumePathNameW");
+    unhook_by_code("kernel32.dll", "GetVolumePathNameW", GetVolumePathNameWOrgFP);
+
+    BOOL ret = GetVolumePathNameW(
+        lpszFileName,
+        lpszVolumePathName,
+        cchBufferLength
+    );
+    hook_by_code("kernel32.dll", "GetVolumePathNameW", (PROC)NewGetVolumePathNameW, GetVolumePathNameWOrgFP);
+    return ret;
+}
+
+BOOL WINAPI NewGetVolumePathNamesForVolumeNameW(
+    LPCWSTR lpszVolumeName,
+    LPWCH   lpszVolumePathNames,
+    DWORD   cchBufferLength,
+    PDWORD  lpcchReturnLength
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"GetVolumePathNamesForVolumeNameW");
+    unhook_by_code("kernel32.dll", "GetVolumePathNamesForVolumeNameW", GetVolumePathNamesForVolumeNameWOrgFP);
+
+    BOOL ret = GetVolumePathNamesForVolumeNameW(
+        lpszVolumeName,
+        lpszVolumePathNames,
+        cchBufferLength,
+        lpcchReturnLength
+    );
+    hook_by_code("kernel32.dll", "GetVolumePathNamesForVolumeNameW", (PROC)NewGetVolumePathNamesForVolumeNameW, GetVolumePathNamesForVolumeNameWOrgFP);
+    return ret;
+}
+
+BOOL WINAPI NewGetVolumeNameForVolumeMountPointW(
+    LPCWSTR lpszVolumeMountPoint,
+    LPWSTR  lpszVolumeName,
+    DWORD   cchBufferLength
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"GetVolumeNameForVolumeMountPointW");
+    unhook_by_code("kernel32.dll", "GetVolumeNameForVolumeMountPointW", GetVolumeNameForVolumeMountPointWOrgFP);
+
+    BOOL ret = GetVolumeNameForVolumeMountPointW(
+        lpszVolumeMountPoint,
+        lpszVolumeName,
+        cchBufferLength
+    );
+    hook_by_code("kernel32.dll", "GetVolumeNameForVolumeMountPointW", (PROC)NewGetVolumeNameForVolumeMountPointW, GetVolumeNameForVolumeMountPointWOrgFP);
+    return ret;
+}
+
+UINT WINAPI NewGetSystemWindowsDirectoryW(
+    LPWSTR lpBuffer,
+    UINT   uSize
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"GetSystemWindowsDirectoryW");
+    unhook_by_code("kernel32.dll", "GetSystemWindowsDirectoryW", GetSystemWindowsDirectoryWOrgFP);
+
+    BOOL ret = GetSystemWindowsDirectoryW(
+        lpBuffer,
+        uSize
+    );
+    hook_by_code("kernel32.dll", "GetSystemWindowsDirectoryW", (PROC)NewGetSystemWindowsDirectoryW, GetSystemWindowsDirectoryWOrgFP);
+    return ret;
+}
+
+UINT WINAPI NewGetSystemDirectoryW(
+    LPWSTR lpBuffer,
+    UINT   uSize
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"GetSystemDirectoryW");
+    unhook_by_code("kernel32.dll", "GetSystemDirectoryW", GetSystemDirectoryWOrgFP);
+
+    BOOL ret = GetSystemDirectoryW(
+        lpBuffer,
+        uSize
+    );
+    hook_by_code("kernel32.dll", "GetSystemDirectoryW", (PROC)NewGetSystemDirectoryW, GetSystemDirectoryWOrgFP);
+    return ret;
+}
+
+UINT WINAPI NewGetSystemDirectoryA(
+    LPSTR lpBuffer,
+    UINT  uSize
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"GetSystemDirectoryA");
+    unhook_by_code("kernel32.dll", "GetSystemDirectoryA", GetSystemDirectoryAOrgFP);
+
+    BOOL ret = GetSystemDirectoryA(
+        lpBuffer,
+        uSize
+    );
+    hook_by_code("kernel32.dll", "GetSystemDirectoryA", (PROC)NewGetSystemDirectoryA, GetSystemDirectoryAOrgFP);
+    return ret;
+}
+
+DWORD WINAPI NewGetShortPathNameW(
+    LPCWSTR lpszLongPath,
+    LPWSTR  lpszShortPath,
+    DWORD   cchBuffer
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"GetShortPathNameW");
+    unhook_by_code("kernel32.dll", "GetShortPathNameW", GetShortPathNameWOrgFP);
+
+    BOOL ret = GetShortPathNameW(
+        lpszLongPath,
+        lpszShortPath,
+        cchBuffer
+    );
+    hook_by_code("kernel32.dll", "GetShortPathNameW", (PROC)NewGetShortPathNameW, GetShortPathNameWOrgFP);
+    return ret;
+}
+
+DWORD WINAPI NewGetFileType(
+    HANDLE hFile
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"GetFileType");
+    unhook_by_code("kernel32.dll", "GetFileType", GetFileTypeOrgFP);
+
+    BOOL ret = GetFileType(
+        hFile
+    );
+
+    hook_by_code("kernel32.dll", "GetFileType", (PROC)NewGetFileType, GetFileTypeOrgFP);
+    return ret;
+}
+
+BOOL WINAPI NewGetFileInformationByHandle(
+    _In_ HANDLE hFile,
+    _Out_ LPBY_HANDLE_FILE_INFORMATION lpFileInformation
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"GetFileInformationByHandle");
+    unhook_by_code("kernel32.dll", "GetFileInformationByHandle", GetFileInformationByHandleOrgFP);
+
+    BOOL ret = GetFileInformationByHandle(
+        hFile,
+        lpFileInformation);
+
+    hook_by_code("kernel32.dll", "GetFileInformationByHandle", (PROC)NewGetFileInformationByHandle, GetFileInformationByHandleOrgFP);
+    return ret;
+}
+
+BOOL WINAPI NewGetFileInformationByHandleEx(
+    HANDLE                    hFile,
+    FILE_INFO_BY_HANDLE_CLASS FileInformationClass,
+    LPVOID                    lpFileInformation,
+    DWORD                     dwBufferSize
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"GetFileInformationByHandleEx");
+    unhook_by_code("kernel32.dll", "GetFileInformationByHandleEx", GetFileInformationByHandleExOrgFP);
+
+    BOOL ret = GetFileInformationByHandleEx(
+        hFile,
+        FileInformationClass,
+        lpFileInformation,
+        dwBufferSize);
+
+    hook_by_code("kernel32.dll", "GetFileInformationByHandleEx", (PROC)NewGetFileInformationByHandleEx, GetFileInformationByHandleExOrgFP);
+    return ret;
+}
 
 HANDLE WINAPI NewCreateFileW(
     _In_ LPCWSTR lpFileName,

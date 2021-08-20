@@ -1,4 +1,4 @@
-﻿// debug_monitor.cpp : Defines the entry point for the console application.
+// debug_monitor.cpp : Defines the entry point for the console application.
 //
 
 #include "stdafx.h"
@@ -282,7 +282,6 @@ int _tmain(int argc, _TCHAR* argv[])
 	std::ofstream writeFile;
 	writeFile.open("logs.csv");
 	//writeFile.open("logs.txt");
-
 	MakeVectorAboutAPIsets();
 	Init_check();
 
@@ -337,7 +336,6 @@ int _tmain(int argc, _TCHAR* argv[])
 					if (QueryFullProcessImageNameW(process_handle, 0, buffer, &buffer_size)) {
 						ws = std::wstring(buffer);
 						str = std::string(ws.begin(), ws.end());
-
 						writeFile << str << ',' << pDBBuffer->dwProcessId << ',';
 						
 						for (auto api_name : logs[pDBBuffer->dwProcessId]) {

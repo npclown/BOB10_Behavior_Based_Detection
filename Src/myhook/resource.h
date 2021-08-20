@@ -37,7 +37,8 @@ BYTE OrgFRA[5]; //FindResourceA
 BYTE OrgFRW[5]; //FindResourceW
 BYTE OrgLR[5]; //LoadResource
 BYTE OrgSR[5]; //SizeofResource
-
+BYTE FindResourceExAOrgFPA[5];
+BYTE FindResourceExWOrgFPW[5];
 
 //Definition structure of FindResourceA,W
 HANDLE WINAPI NewFindResourceA( //FindResourceA -> winbase.h
@@ -96,4 +97,40 @@ DWORD WINAPI NewSizeofResource(
 
 	hook_by_code("kernel32.dll", "SizeofResource", (PROC)NewSizeofResource, OrgSR);
 	return SR_handle;
+}
+
+HRSRC WINAPI NewFindResourceExA(
+	_In_opt_ HMODULE hModule,
+	_In_     LPCSTR lpType,
+	_In_     LPCSTR lpName,
+	_In_     WORD    wLanguage
+) {
+	DebugLog("%d %ls", GetCurrentProcessId(), L"FindResourceExA");
+	unhook_by_code("kernel32.dll", "FindResourceExA", FindResourceExAOrgFPA);
+
+	HRSRC ret = FindResourceExA(hModule, 
+								lpType,
+								lpName,
+								wLanguage);
+
+	hook_by_code("kernel32.dll", "FindResourceExA", (PROC)NewFindResourceExA, FindResourceExAOrgFPA);
+	return ret;
+}
+
+HRSRC WINAPI NewFindResourceExW(
+	_In_opt_ HMODULE hModule,
+	_In_ LPCWSTR lpType,
+	_In_ LPCWSTR lpName,
+	_In_ WORD wLanguage
+) {
+	DebugLog("%d %ls", GetCurrentProcessId(), L"FindResourceExW");
+	unhook_by_code("kernel32.dll", "FindResourceExW", FindResourceExWOrgFPW);
+
+	HRSRC ret = FindResourceExW(hModule,
+								lpType,
+								lpName,
+								wLanguage);
+
+	hook_by_code("kernel32.dll", "FindResourceExW", (PROC)NewFindResourceExW, FindResourceExWOrgFPW);
+	return ret;
 }

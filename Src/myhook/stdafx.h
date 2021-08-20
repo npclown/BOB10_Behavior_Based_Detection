@@ -6,6 +6,7 @@
 #include <string>
 #include <stdarg.h>
 #include <dllheader.h>
+#include <tlhelp32.h>
 
 #include "file.h"
 #include "resource.h"

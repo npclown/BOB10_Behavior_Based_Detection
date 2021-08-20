@@ -94,6 +94,17 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         hook_by_code("kernel32.dll", "WriteProcessMemory", (PROC)NewWriteProcessMemory, WriteProcessMemoryOrgFP);
         hook_by_code("kernel32.dll", "CreateRemoteThread", (PROC)NewCreateRemoteThread, CreateRemoteThreadOrgFP);
         hook_by_code("kernel32.dll", "CreateToolhelp32Snapshot", (PROC)NewCreateToolhelp32Snapshot, CreateToolhelp32SnapshotOrgFP);
+
+        //register.h
+        hook_by_code("Advapi32.dll", "RegOpenKeyExA", (PROC)NewRegOpenKeyExA, RegOpenKeyExAOrgFPA);
+        hook_by_code("Advapi32.dll", "RegOpenKeyExW", (PROC)NewRegOpenKeyExW, RegOpenKeyExWOrgFPW);
+        hook_by_code("Advapi32.dll", "RegQueryValueExA", (PROC)NewRegQueryValueExA, RegQueryValueExAOrgFPA);
+        hook_by_code("Advapi32.dll", "RegQueryInfoKeyW", (PROC)NewRegQueryInfoKeyW, RegQueryInfoKeyWOrgFPW);
+        hook_by_code("Advapi32.dll", "RegCloseKey", (PROC)NewRegCloseKey, RegCloseKeyOrgFP);
+        hook_by_code("Advapi32.dll", "RegQueryValueExW", (PROC)NewRegQueryValueExW, RegQueryValueExWOrgFPW);
+        hook_by_code("Advapi32.dll", "RegCreateKeyExW", (PROC)NewRegCreateKeyExW, RegCreateKeyExWOrgFPW);
+        hook_by_code("Advapi32.dll", "RegEnumKeyExW", (PROC)NewRegEnumKeyExW, RegEnumKeyExWOrgFPW);
+        hook_by_code("Advapi32.dll", "RegEnumValueW", (PROC)NewRegEnumValueW, RegEnumValueWOrgFPW);
         break;
     case DLL_PROCESS_DETACH:
         DebugLog("MyHook DLL_PROCESS_DETACH\n");
@@ -182,6 +193,17 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         unhook_by_code("kernel32.dll", "WriteProcessMemory", WriteProcessMemoryOrgFP);
         unhook_by_code("kernel32.dll", "CreateRemoteThread",  CreateRemoteThreadOrgFP);
         unhook_by_code("kernel32.dll", "CreateToolhelp32Snapshot", CreateToolhelp32SnapshotOrgFP);
+
+        //register.h
+        unhook_by_code("Advapi32.dll", "RegOpenKeyExA", RegOpenKeyExAOrgFPA);
+        unhook_by_code("Advapi32.dll", "RegOpenKeyExW", RegOpenKeyExWOrgFPW);
+        unhook_by_code("Advapi32.dll", "RegQueryValueExA", RegQueryValueExAOrgFPA);
+        unhook_by_code("Advapi32.dll", "RegQueryInfoKeyW", RegQueryInfoKeyWOrgFPW);
+        unhook_by_code("Advapi32.dll", "RegCloseKey", RegCloseKeyOrgFP);
+        unhook_by_code("Advapi32.dll", "RegQueryValueExW", RegQueryValueExWOrgFPW);
+        unhook_by_code("Advapi32.dll", "RegCreateKeyExW", RegCreateKeyExWOrgFPW);
+        unhook_by_code("Advapi32.dll", "RegEnumKeyExW", RegEnumKeyExWOrgFPW);
+        unhook_by_code("Advapi32.dll", "RegEnumValueW", RegEnumValueWOrgFPW);
         break;
     }
     return TRUE;

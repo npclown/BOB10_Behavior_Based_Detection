@@ -16,6 +16,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="synchronisation.h" />
     <ClInclude Include="registery.h" />
+    <ClInclude Include="etc.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />

@@ -40,6 +40,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         hook_by_code("kernel32.dll", "GetFileSize", (PROC)NewGetFileSize, GetFileSizeOrgFP);
         hook_by_code("kernel32.dll", "SetEndOfFile", (PROC)NewSetEndOfFile, SetEndOfFileOrgFP);
         hook_by_code("kernel32.dll", "SetFilePointer", (PROC)NewSetFilePointer, SetFilePointerOrgFP);
+        hook_by_code("kernel32.dll", "FindFirstFileExW", (PROC)NewFindFirstFileExW, FindFirstFileExWOrgFPW);
+
 
         //resource.h
         hook_by_code("kernel32.dll", "FindResourceA", (PROC)NewFindResourceA, OrgFRA);
@@ -105,6 +107,17 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         hook_by_code("Advapi32.dll", "RegCreateKeyExW", (PROC)NewRegCreateKeyExW, RegCreateKeyExWOrgFPW);
         hook_by_code("Advapi32.dll", "RegEnumKeyExW", (PROC)NewRegEnumKeyExW, RegEnumKeyExWOrgFPW);
         hook_by_code("Advapi32.dll", "RegEnumValueW", (PROC)NewRegEnumValueW, RegEnumValueWOrgFPW);
+
+        //etc.h
+        hook_by_code("Advapi32.dll", "CryptAcquireContextW", (PROC)NewCryptAcquireContextW, CryptAcquireContextWOrgFPW);
+        hook_by_code("Kernel32.dll", "HeapCreate", (PROC)NewHeapCreate, HeapCreateOrgFP);
+        hook_by_code("Kernel32.dll", "GetSystemTime", (PROC)NewGetSystemTime, GetSystemTimeOrgFP);
+        hook_by_code("Advapi32.dll", "CryptGenRandom", (PROC)NewCryptGenRandom, CryptGenRandomOrgFP);
+        hook_by_code("Kernel32.dll", "DeviceIoControl", (PROC)NewDeviceIoControl, DeviceIoControlOrgFP);
+        hook_by_code("Kernel32.dll", "VirtualProtectEx", (PROC)NewVirtualProtectEx, VirtualProtectExOrgFP);
+        hook_by_code("Kernel32.dll", "GlobalMemoryStatus", (PROC)NewGlobalMemoryStatus, GlobalMemoryStatusOrgFP);
+        hook_by_code("Kernel32.dll", "GlobalMemoryStatusEx", (PROC)NewGlobalMemoryStatusEx, GlobalMemoryStatusExOrgFP);
+
         break;
     case DLL_PROCESS_DETACH:
         DebugLog("MyHook DLL_PROCESS_DETACH\n");
@@ -142,6 +155,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         unhook_by_code("kernel32.dll", "GetFileSize", GetFileSizeOrgFP);
         unhook_by_code("kernel32.dll", "SetEndOfFile", SetEndOfFileOrgFP);
         unhook_by_code("kernel32.dll", "SetFilePointer", SetFilePointerOrgFP);
+        unhook_by_code("kernel32.dll", "FindFirstFileExW", FindFirstFileExWOrgFPW);
+
 
         //resource.h
         unhook_by_code("kernel32.dll", "FindResourceA", OrgFRA);
@@ -204,6 +219,16 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         unhook_by_code("Advapi32.dll", "RegCreateKeyExW", RegCreateKeyExWOrgFPW);
         unhook_by_code("Advapi32.dll", "RegEnumKeyExW", RegEnumKeyExWOrgFPW);
         unhook_by_code("Advapi32.dll", "RegEnumValueW", RegEnumValueWOrgFPW);
+        
+        //etc.h
+        unhook_by_code("Advapi32.dll", "CryptAcquireContextW", CryptAcquireContextWOrgFPW);
+        unhook_by_code("Kernel32.dll", "HeapCreate", HeapCreateOrgFP);
+        unhook_by_code("Kernel32.dll", "GetSystemTime", GetSystemTimeOrgFP);
+        unhook_by_code("Advapi32.dll", "CryptGenRandom", CryptGenRandomOrgFP);
+        unhook_by_code("Kernel32.dll", "DeviceIoControl", DeviceIoControlOrgFP);
+        unhook_by_code("Kernel32.dll", "VirtualProtectEx", VirtualProtectExOrgFP);
+        unhook_by_code("Kernel32.dll", "GlobalMemoryStatus", GlobalMemoryStatusOrgFP);
+        unhook_by_code("Kernel32.dll", "GlobalMemoryStatusEx", GlobalMemoryStatusExOrgFP);
         break;
     }
     return TRUE;

@@ -16,5 +16,6 @@
 #include "system.h"
 #include "process.h"
 #include "registery.h"
+#include "etc.h"
 
 #define DLLNAME L"myhook.dll"

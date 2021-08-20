@@ -1,4 +1,4 @@
-﻿// debug_monitor.cpp : Defines the entry point for the console application.
+// debug_monitor.cpp : Defines the entry point for the console application.
 //
 
 #include "stdafx.h"
@@ -30,8 +30,17 @@ struct db_buffer* pDBBuffer;
 // pid를 키로 가지고 해당 pid의 호출 api 목록을 set으로 저장하는 map : logs
 //std::map<DWORD, std::set<std::string>> logs;
 std::map<DWORD, std::vector<std::string>> logs;
-std::string detach = "DETACH";
-std::string attach = "ATTACH";
+std::string detach = "DETACH\n";
+std::string attach = "ATTACH\n";
+
+bool pid_check[32769]; // pid : 0 ~ 32768, true - 한 번 체크됨 (메시지 박스 중복 방지용)
+bool malware_check[32769]; // pid : 0 ~ 32768, true - 차단된 pid
+
+void Init_check()
+{
+	memset(pid_check, sizeof(pid_check), false);
+	memset(malware_check, sizeof(malware_check), false);
+}
 
 void Get_API(DWORD pid, char* data)
 {
@@ -53,7 +62,10 @@ void Get_API(DWORD pid, char* data)
 			logs[pid].push_back(api_name);
 	}
 	else {
-		if ((*str_data).substr((*str_data).size() - 6) == detach) {
+		if ((*str_data).substr((*str_data).size() - 7) == detach) {
+			pid_check[(int)pid] = false;
+			malware_check[(int)pid] = false;
+			printf("========\n");
 			logs[pid].clear();
 		}
 	}
@@ -271,28 +283,59 @@ int _tmain(int argc, _TCHAR* argv[])
 	writeFile.open("logs.csv");
 	//writeFile.open("logs.txt");
 	MakeVectorAboutAPIsets();
+	Init_check();
 
 	while (isRunning)
 	{
-
 		DWORD mb = WaitForSingleObject(hEventDataReady, INFINITE);
 
 		if (mb == WAIT_OBJECT_0) {
 
+			HANDLE terminate_handle = OpenProcess(SYNCHRONIZE | PROCESS_TERMINATE, TRUE, pDBBuffer->dwProcessId);
+
+			int ProcessId = (int)(pDBBuffer->dwProcessId);
+
+			if ((malware_check[ProcessId] == false) && (pid_check[ProcessId] == true)) {
+				try {
+					// 악성코드 아닌 것이라 판정된 pid
+					CloseHandle(terminate_handle);
+					SetEvent(hEventBufferReady);
+				}
+				catch (int exception) {
+					printf("terminate handle error!!!\n");
+				}
+				continue;
+			}
+
+			if ((malware_check[ProcessId] == true) && (pid_check[ProcessId] == true)) {
+				try {
+					// 악성코드인지 한 번 체크된 pid
+					TerminateProcess(terminate_handle, 0);
+					CloseHandle(terminate_handle);
+					SetEvent(hEventBufferReady);
+				}
+				catch (int exception) {
+					printf("kill error!!!!\n");
+				}
+				continue;
+			}
+			
 			try {
+				HANDLE process_handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pDBBuffer->dwProcessId);
+
 				Get_API(pDBBuffer->dwProcessId, pDBBuffer->data);
 				printf("[%d] %s\n", pDBBuffer->dwProcessId, pDBBuffer->data);
 
-				HANDLE process_handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pDBBuffer->dwProcessId);
+				wchar_t buffer[MAX_PATH] = {};
+				DWORD buffer_size = MAX_PATH;
+				std::wstring ws;
+				std::string str;
 				
 				if (process_handle) {
-					wchar_t buffer[MAX_PATH] = {};
-					DWORD buffer_size = MAX_PATH;
-
+					
 					if (QueryFullProcessImageNameW(process_handle, 0, buffer, &buffer_size)) {
-						std::wstring ws(buffer);
-						std::string str(ws.begin(), ws.end());
-
+						ws = std::wstring(buffer);
+						str = std::string(ws.begin(), ws.end());
 						writeFile << str << ',' << pDBBuffer->dwProcessId << ',';
 						
 						for (auto api_name : logs[pDBBuffer->dwProcessId]) {
@@ -301,9 +344,31 @@ int _tmain(int argc, _TCHAR* argv[])
 						writeFile << '\n';
 					}
 				}
+
 				bool keylogger_check = isKeyLogger(pDBBuffer->dwProcessId);
-				if (keylogger_check) {
+				
+				if ((keylogger_check == true) && (malware_check[ProcessId] == false)) {
 					printf("[%d] is key logger\n", pDBBuffer->dwProcessId);
+
+					wchar_t result[512];
+					wsprintf(result, L" 악성 파일로 예상됩니다.\n 파일 이름 : %ls\n 해당 파일을 허용하시겠습니까?\n", ws.c_str());
+					int input = MessageBox(NULL, result, L"Detected", MB_YESNO);
+					if (input == IDNO) {
+						MessageBox(NULL, L"해당 파일을 차단하였습니다.", L"차단", MB_OK);
+						malware_check[ProcessId] = true;
+						pid_check[ProcessId] = true;
+						TerminateProcess(terminate_handle, 0);
+						CloseHandle(process_handle);
+						SetEvent(hEventBufferReady);
+						printf("kill [%d]\n", pDBBuffer->dwProcessId);
+					}
+					if (input == IDYES) {
+						MessageBox(NULL, L"해당 파일을 허용하였습니다.", L"허용", MB_OK);
+						malware_check[ProcessId] = false;
+						pid_check[ProcessId] = true;
+						CloseHandle(process_handle);
+						SetEvent(hEventBufferReady);
+					}
 				}
 
 				CloseHandle(process_handle);
@@ -312,6 +377,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				writeFile << "error" << '\n';
 			}
 
+			CloseHandle(terminate_handle);
 			SetEvent(hEventBufferReady);
 		}
 	}

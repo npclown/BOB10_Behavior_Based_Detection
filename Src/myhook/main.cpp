@@ -21,7 +21,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         hook_by_code("kernel32.dll", "GetFileType", (PROC)NewGetFileType, GetFileTypeOrgFP);
         hook_by_code("kernel32.dll", "GetFileInformationByHandle", (PROC)NewGetFileInformationByHandle, GetFileInformationByHandleOrgFP);
         hook_by_code("kernel32.dll", "GetFileInformationByHandleEx", (PROC)NewGetFileInformationByHandleEx, GetFileInformationByHandleExOrgFP);
-
         hook_by_code("kernel32.dll", "CreateFileW", (PROC)NewCreateFileW, CreateFileOrgFPW);
         hook_by_code("kernel32.dll", "CreateFileA", (PROC)NewCreateFileA, CreateFileOrgFPA);
         hook_by_code("kernel32.dll", "DeleteFileW", (PROC)NewDeleteFileW, DeleteFileOrgFPW);
@@ -41,13 +40,18 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         hook_by_code("kernel32.dll", "GetFileSize", (PROC)NewGetFileSize, GetFileSizeOrgFP);
         hook_by_code("kernel32.dll", "SetEndOfFile", (PROC)NewSetEndOfFile, SetEndOfFileOrgFP);
         hook_by_code("kernel32.dll", "SetFilePointer", (PROC)NewSetFilePointer, SetFilePointerOrgFP);
+
         //resource.h
         hook_by_code("kernel32.dll", "FindResourceA", (PROC)NewFindResourceA, OrgFRA);
+        hook_by_code("kernel32.dll", "FindResourceA", (PROC)NewFindResourceW, OrgFRW);
+        hook_by_code("kernel32.dll", "LoadResource", (PROC)NewLoadResource, OrgLR);
+        hook_by_code("kernel32.dll", "SizeofResource", (PROC)NewSizeofResource, OrgSR);
         hook_by_code("kernel32.dll", "FindResourceW", (PROC)NewFindResourceW, OrgFRW);
         hook_by_code("kernel32.dll", "LoadResource", (PROC)NewLoadResource, OrgLR);
         hook_by_code("kernel32.dll", "SizeofResource", (PROC)NewSizeofResource, OrgSR);
         hook_by_code("kernel32.dll", "FindResourceExA", (PROC)NewFindResourceExA, FindResourceExAOrgFPA);
         hook_by_code("kernel32.dll", "FindResourceExW", (PROC)NewFindResourceExW, FindResourceExWOrgFPW);
+
         //misc.h
         hook_by_code("kernel32.dll", "GetTimeZoneInformation", (PROC)NewGetTimeZoneInformation, OrgGTZ);
         hook_by_code("kernel32.dll", "GetComputerNameA", (PROC)NewGetComputerNameA, OrgGCA);
@@ -56,20 +60,24 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         hook_by_code("kernel32.dll", "GetDiskFreeSpaceW", (PROC)NewGetDiskFreeSpaceW, OrgGDW);
         hook_by_code("kernel32.dll", "WriteConsoleA", (PROC)NewWriteConsoleA, WriteConsoleAOrgFPA);
         hook_by_code("kernel32.dll", "WriteConsoleW", (PROC)NewWriteConsoleW, WriteConsoleWOrgFPW);
+
         //synchronisation.h
         //hook_by_code("kernel32.dll", "GetTickCount", (PROC)NewGetTickCount, OrgGTC);
         hook_by_code("kernel32.dll", "GetLocalTime", (PROC)NewGetLocalTime, OrgGLT);
         hook_by_code("kernel32.dll", "GetSystemTimeAsFileTime", (PROC)NewGetSystemTimeAsFileTime, OrgGSTFT);
         hook_by_code("kernel32.dll", "Sleep", (PROC)NewSleep, OrgSleep);
+        
         //exception.h
         hook_by_code("kernel32.dll", "UnhandledExceptionFilter", (PROC)NewUnhandledExceptionFilter, UEFOrgFP);
         hook_by_code("kernel32.dll", "SetUnhandledExceptionFilter", (PROC)NewSetUnhandledExceptionFilter, SUEFOrgFP);
+        
         //system.h
         //hook_by_code("kernel32.dll", "IsDebuggerPresent", (PROC)NewIsDebuggerPresent, IDPOriFP);
         hook_by_code("kernel32.dll", "GetSystemInfo", (PROC)NewGetSystemInfo, GSIOriFP);
         hook_by_code("kernel32.dll", "SetErrorMode", (PROC)NewSetErrorMode, SEMOriFP);
         hook_by_code("kernel32.dll", "GetNativeSystemInfo", (PROC)NewGetNativeSystemInfo, GetNativeSystemInfoOrgFP);
         //hook_by_code("kernel32.dll", "OutputDebugStringA", (PROC)NewOutputDebugStringA, OutputDebugStringAOrgFPA);
+
         //process.h
         hook_by_code("kernel32.dll", "OpenProcess", (PROC)NewOpenProcess, OP_OrgFP);
         hook_by_code("kernel32.dll", "TerminateProcess", (PROC)NewTerminateProcess, TP_OrgFP);
@@ -104,8 +112,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         unhook_by_code("kernel32.dll", "GetFileType", GetFileTypeOrgFP);
         unhook_by_code("kernel32.dll", "GetFileInformationByHandle", GetFileInformationByHandleOrgFP);
         unhook_by_code("kernel32.dll", "GetFileInformationByHandleEx", GetFileInformationByHandleExOrgFP);
-
-
         unhook_by_code("kernel32.dll", "CreateFileW", CreateFileOrgFPW);
         unhook_by_code("kernel32.dll", "CreateFileA", CreateFileOrgFPA);
         unhook_by_code("kernel32.dll", "DeleteFileW", DeleteFileOrgFPW);
@@ -125,6 +131,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         unhook_by_code("kernel32.dll", "GetFileSize", GetFileSizeOrgFP);
         unhook_by_code("kernel32.dll", "SetEndOfFile", SetEndOfFileOrgFP);
         unhook_by_code("kernel32.dll", "SetFilePointer", SetFilePointerOrgFP);
+
         //resource.h
         unhook_by_code("kernel32.dll", "FindResourceA", OrgFRA);
         unhook_by_code("kernel32.dll", "FindResourceW", OrgFRW);
@@ -132,6 +139,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         unhook_by_code("kernel32.dll", "SizeofResource", OrgSR);
         unhook_by_code("kernel32.dll", "FindResourceExA", FindResourceExAOrgFPA);
         unhook_by_code("kernel32.dll", "FindResourceExW", FindResourceExWOrgFPW);
+
         //misc.h
         unhook_by_code("kernel32.dll", "GetTimeZoneInformation", OrgGTZ);
         unhook_by_code("kernel32.dll", "GetDiskFreeSpaceW", OrgGDW);
@@ -140,20 +148,24 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         unhook_by_code("kernel32.dll", "GetComputerNameA", OrgGCA);
         unhook_by_code("kernel32.dll", "WriteConsoleA",  WriteConsoleAOrgFPA);
         unhook_by_code("kernel32.dll", "WriteConsoleW", WriteConsoleWOrgFPW);
+
         //synchronisation.h
         //unhook_by_code("kernel32.dll", "GetTickCount", OrgGTC);
         unhook_by_code("kernel32.dll", "GetLocalTime", OrgGLT);
         unhook_by_code("kernel32.dll", "GetSystemTimeAsFileTime", OrgGSTFT);
         unhook_by_code("kernel32.dll", "Sleep", OrgSleep);
+        
         //exception.h
         unhook_by_code("kernel32.dll", "UnhandledExceptionFilter", UEFOrgFP);
         unhook_by_code("kernel32.dll", "SetUnhandledExceptionFilter", SUEFOrgFP);
+        
         //system.h
         //unhook_by_code("kernel32.dll", "IsDebuggerPresent", IDPOriFP);
         unhook_by_code("kernel32.dll", "GetSystemInfo", GSIOriFP);
         unhook_by_code("kernel32.dll", "SetErrorMode", SEMOriFP);
         unhook_by_code("kernel32.dll", "GetNativeSystemInfo", GetNativeSystemInfoOrgFP);
         //unhook_by_code("kernel32.dll", "OutputDebugStringA", OutputDebugStringAOrgFPA);
+
         //process.h
         unhook_by_code("kernel32.dll", "OpenProcess", OP_OrgFP);
         unhook_by_code("kernel32.dll", "TerminateProcess", TP_OrgFP);

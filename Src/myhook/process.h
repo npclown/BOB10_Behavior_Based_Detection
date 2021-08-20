@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 BYTE OP_OrgFP[5];
 BYTE TP_OrgFP[5];
 BYTE CT_OrgFP[5];

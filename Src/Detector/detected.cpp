@@ -54,23 +54,6 @@ int scenario1_size = scenario1.size();
 int scenario2_size = scenario2.size();
 int scenario3_size = scenario3.size();
 
-void Initialize_check_index_of_scenario()
-{
-
-}
-void Initailize_check_by_user() 
-{
-	
-}
-void Initailize_malware_check()
-{
-	
-}
-void Initialize_check_count()
-{
-
-}
-
 void Get_API(DWORD pid, char* data)
 {
 	if (data == NULL)
@@ -244,6 +227,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				HANDLE terminate_handle = OpenProcess(SYNCHRONIZE | PROCESS_TERMINATE, TRUE, pDBBuffer->dwProcessId);
 				try {
 					TerminateProcess(terminate_handle, 0);
+					printf("[%d] terminate\n", pid);
 					CloseHandle(terminate_handle);
 					SetEvent(hEventBufferReady);
 				}
@@ -259,7 +243,8 @@ int _tmain(int argc, _TCHAR* argv[])
 				HANDLE process_handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pDBBuffer->dwProcessId);
 
 				Get_API(pDBBuffer->dwProcessId, pDBBuffer->data);
-				printf("[%d] %s\n", pDBBuffer->dwProcessId, pDBBuffer->data);
+				//printf("[%d] %s\n", pDBBuffer->dwProcessId, pDBBuffer->data);
+				printf("[%d] %s\n", pid, logs[pid].c_str());
 
 				wchar_t buffer[MAX_PATH] = {};
 				DWORD buffer_size = MAX_PATH;
@@ -273,11 +258,7 @@ int _tmain(int argc, _TCHAR* argv[])
 						str = std::string(ws.begin(), ws.end());
 
 						writeFile << str << ',' << pDBBuffer->dwProcessId << ',';
-						
-						for (auto api_name : logs[pDBBuffer->dwProcessId]) {
-							writeFile << api_name << ',';
-						}
-						writeFile << '\n';
+						writeFile << logs[pid] << '\n';
 					}
 				}
 
@@ -309,6 +290,8 @@ int _tmain(int argc, _TCHAR* argv[])
 					malware_check[pid].check3 = true;
 				}
 
+				check_index_of_scenario[pid] = { idx_scenario1, idx_scenario2, idx_scenario3 };
+
 				int isKeyLogger = KeyLogger_check(pDBBuffer->dwProcessId);
 
 				if (isKeyLogger == 0) {
@@ -316,7 +299,6 @@ int _tmain(int argc, _TCHAR* argv[])
 					CloseHandle(process_handle);
 				}
 				else {
-					check_index_of_scenario[pid] = { idx_scenario1, idx_scenario2, idx_scenario3 };
 					MessageBox_and_KeyLogger_check(pDBBuffer->dwProcessId, isKeyLogger, ws);
 					CloseHandle(process_handle);
 				}

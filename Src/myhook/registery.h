@@ -16,7 +16,7 @@ LSTATUS APIENTRY NewRegOpenKeyExA(
     _In_ REGSAM samDesired,
     _Out_ PHKEY phkResult
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"RegOpenKeyExA");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"RegOpenKey");
     unhook_by_code("Advapi32.dll", "RegOpenKeyExA", RegOpenKeyExAOrgFPA);
 
     LSTATUS ret = RegOpenKeyExA(hKey,
@@ -35,7 +35,7 @@ LSTATUS APIENTRY NewRegOpenKeyExW(
     _In_ REGSAM samDesired,
     _Out_ PHKEY phkResult
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"RegOpenKeyExW");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"RegOpenKey");
     unhook_by_code("Advapi32.dll", "RegOpenKeyExW", RegOpenKeyExWOrgFPW);
 
     LSTATUS ret = RegOpenKeyExW(hKey,
@@ -55,7 +55,7 @@ LSTATUS APIENTRY NewRegQueryValueExA(
     _Out_writes_bytes_to_opt_(*lpcbData, *lpcbData) __out_data_source(REGISTRY) LPBYTE lpData,
     _When_(lpData == NULL, _Out_opt_) _When_(lpData != NULL, _Inout_opt_) LPDWORD lpcbData
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"RegQueryValueExA");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"RegQueryValue");
     unhook_by_code("Advapi32.dll", "RegQueryValueExA", RegQueryValueExAOrgFPA);
 
     LSTATUS ret = RegQueryValueExA(hKey,
@@ -82,7 +82,7 @@ LSTATUS APIENTRY NewRegQueryInfoKeyW(
     _Out_opt_ LPDWORD lpcbSecurityDescriptor,
     _Out_opt_ PFILETIME lpftLastWriteTime
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"RegQueryInfoKeyW");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"RegQueryInfoKey");
     unhook_by_code("Advapi32.dll", "RegQueryInfoKeyW", RegQueryInfoKeyWOrgFPW);
 
     LSTATUS ret = RegQueryInfoKeyW(hKey,
@@ -121,7 +121,7 @@ LSTATUS APIENTRY NewRegQueryValueExW(
     _Out_writes_bytes_to_opt_(*lpcbData, *lpcbData) __out_data_source(REGISTRY) LPBYTE lpData,
     _When_(lpData == NULL, _Out_opt_) _When_(lpData != NULL, _Inout_opt_) LPDWORD lpcbData
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"RegQueryValueExW");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"RegQueryValue");
     unhook_by_code("Advapi32.dll", "RegQueryValueExW", RegQueryValueExWOrgFPW);
 
     LSTATUS ret = RegQueryValueExW(hKey,
@@ -145,7 +145,7 @@ LSTATUS APIENTRY NewRegCreateKeyExW(
     _Out_ PHKEY phkResult,
     _Out_opt_ LPDWORD lpdwDisposition
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"RegCreateKeyExW");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"RegCreateKey");
     unhook_by_code("Advapi32.dll", "RegCreateKeyExW", RegCreateKeyExWOrgFPW);
 
     LSTATUS ret = RegCreateKeyExW(hKey,
@@ -171,7 +171,7 @@ LSTATUS APIENTRY NewRegEnumKeyExW(
     _Inout_opt_ LPDWORD lpcchClass,
     _Out_opt_ PFILETIME lpftLastWriteTime
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"RegEnumKeyExW");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"RegEnumKey");
     unhook_by_code("Advapi32.dll", "RegEnumKeyExW", RegEnumKeyExWOrgFPW);
 
     LSTATUS ret = RegEnumKeyExW(hKey,
@@ -196,7 +196,7 @@ LSTATUS APIENTRY NewRegEnumValueW(
     _Out_writes_bytes_to_opt_(*lpcbData, *lpcbData) __out_data_source(REGISTRY) LPBYTE lpData,
     _Inout_opt_ LPDWORD lpcbData
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"RegEnumValueW");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"RegEnumValue");
     unhook_by_code("Advapi32.dll", "RegEnumValueW", RegEnumValueWOrgFPW);
 
     LSTATUS ret = RegEnumValueW(hKey,

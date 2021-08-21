@@ -11,7 +11,7 @@
 #include <fstream>
 #include <vector>
 #include <algorithm>
-#include "APIset.h"
+#include "Scenarios.h"
 
 struct db_buffer
 {
@@ -27,20 +27,32 @@ HANDLE hEventBufferReady;
 
 struct db_buffer* pDBBuffer;
 
-// pid를 키로 가지고 해당 pid의 호출 api 목록을 set으로 저장하는 map : logs
-//std::map<DWORD, std::set<std::string>> logs;
-std::map<DWORD, std::vector<std::string>> logs;
+typedef struct index_of_scenario {
+	int idx1 = 0; int idx2 = 0; int idx3 = 0;
+}index_of_scenario;
+
+typedef struct bool_of_malware_check {
+	bool check1 = false; bool check2 = false; bool check3 = false;
+}bool_of_malware_check;
+
+index_of_scenario check_index_of_scenario[32769]; // index of checking on scenarios
+bool check_by_user[32769]; // if it is true, then it must be malware why user checking
+bool_of_malware_check malware_check[32769]; // if it has one or more true, then it will be malware by scenario
+int check_count[32769]; 
+// if user click NO on message box, then other or same scenario will be call later, 
+// so if user click NO 3 times, then it must be not malware because of user clicking
+
+std::string logs[32769]; // 0 ~ 32768 = pid, string = called api
 std::string detach = "DETACH\n";
 std::string attach = "ATTACH\n";
 
-bool pid_check[32769]; // pid : 0 ~ 32768, true - 한 번 체크됨 (메시지 박스 중복 방지용)
-bool malware_check[32769]; // pid : 0 ~ 32768, true - 차단된 pid
+std::vector<std::string> scenario1 = Scenario1();
+std::vector<std::string> scenario2 = Scenario2();
+std::vector<std::string> scenario3 = Scenario3();
 
-void Init_check()
-{
-	memset(pid_check, sizeof(pid_check), false);
-	memset(malware_check, sizeof(malware_check), false);
-}
+int scenario1_size = scenario1.size();
+int scenario2_size = scenario2.size();
+int scenario3_size = scenario3.size();
 
 void Get_API(DWORD pid, char* data)
 {
@@ -54,19 +66,15 @@ void Get_API(DWORD pid, char* data)
 	*str_pid = std::to_string((int)pid);
 
 	if (*str_pid == (*str_data).substr(0, (*str_pid).size())) {
-		//logs[pid].insert((*str_data).substr((*str_pid).size() + 1));
-
-		// 중복체크하면서 push back
 		std::string api_name = (*str_data).substr((*str_pid).size() + 1);
-		if(std::find(logs[pid].begin(), logs[pid].end(), api_name) == logs[pid].end())
-			logs[pid].push_back(api_name);
+		logs[(int)pid] = api_name;
 	}
 	else {
 		if ((*str_data).substr((*str_data).size() - 7) == detach) {
-			pid_check[(int)pid] = false;
-			malware_check[(int)pid] = false;
-			printf("========\n");
-			logs[pid].clear();
+			logs[(int)pid].clear();
+			check_index_of_scenario[(int)pid] = { 0,0,0 };
+			check_by_user[(int)pid] = false;
+			malware_check[(int)pid] = { false, false, false };
 		}
 	}
 
@@ -75,160 +83,82 @@ void Get_API(DWORD pid, char* data)
 
 	return;
 }
-// 여기까지
 
-// 딜레마이군.....
-// 호출하는 api 목록이랑 체크할 api 목록(아래 애들) 둘 다를 set으로 하면
-// 결국 detach 하기 직전에 둘이 비교하는 법 밖에 없을 듯
-// 하지만 detach 하지 않는다면???
-// 호출하는 api 목록을 vector로 처리하면 중복처리를 while 돌 때마다 계속 호출해야됨 => 너무 비효율 => 그런데 이게 최선일 듯
-// 체크할 api 목록을 vector로 처리하면 중복처리를 못하고 계속 체킹됨
-// 무엇이 최선일까......
-
-std::set<std::string> exception = Exception();
-std::set<std::string> system_ = System();
-std::set<std::string> process = Process();
-std::set<std::string> file = File();
-std::set<std::string> resource = Resource();
-std::set<std::string> misc = Misc();
-std::set<std::string> synchronisation = Synchronisation();
-
-std::vector<std::set<std::string>> ListOfAPIsets; // 위에 애들 모아놓은 것
-std::vector<int> SizeOfAPIsets;
-
-void MakeVectorAboutAPIsets()
+int KeyLogger_check(DWORD pid)
 {
-	ListOfAPIsets.push_back(exception); // 0 (index of vec_check)
-	ListOfAPIsets.push_back(system_); // 1
-	ListOfAPIsets.push_back(process); // 2
-	ListOfAPIsets.push_back(file); // 3
-	ListOfAPIsets.push_back(resource); // 4
-	ListOfAPIsets.push_back(misc); // 5
-	ListOfAPIsets.push_back(synchronisation); // 6
+	// 0 : no keylogger, 1 : scenario1, 2 : scenario2, 3 : scenario3
+	// probability : scenario1 > scenario2 > scenario3
 
-	SizeOfAPIsets.push_back(exception.size());
-	SizeOfAPIsets.push_back(system_.size());
-	SizeOfAPIsets.push_back(process.size());
-	SizeOfAPIsets.push_back(file.size());
-	SizeOfAPIsets.push_back(resource.size());
-	SizeOfAPIsets.push_back(misc.size());
-	SizeOfAPIsets.push_back(synchronisation.size());
+	bool check1 = malware_check[(int)pid].check1;
+	bool check2 = malware_check[(int)pid].check2;
+	bool check3 = malware_check[(int)pid].check3;
+
+	if (check1 == false && check2 == false && check3 == false)
+		return 0;
+	else if (check1 == true)
+		return 1;
+	else if (check1 == false && check2 == true)
+		return 2;
+	else if (check1 == false && check2 == false && check3 == true)
+		return 3;
 }
 
-std::map<DWORD, int> IdxOfVecOfPid; // 해당 pid의 중복 없는 vector의 체크 대상 idx 저장, key = pid value = idx
-std::map<DWORD, std::vector<int>> CountingOfAPIsOfPid; // 해당 pid에 대해 check_list의 set 목록에 몇 개가 체크되고 있는지 확인
+void MessageBox_and_KeyLogger_check(DWORD pid, int isKeyLogger, std::wstring ws) {
 
-void Init_IdxOfVecPid(DWORD pid)
-{
-	IdxOfVecOfPid[pid] = 0;
-}
+	wchar_t result[512];
+	std::wstring probability;
 
-void Init_CountingOfAPIsOfPid(DWORD pid)
-{
-	CountingOfAPIsOfPid[pid].clear();
-	CountingOfAPIsOfPid[pid].resize(ListOfAPIsets.size(), 0);
-}
-
-void CountAPI(std::string s, DWORD pid)
-{
-	std::set<std::string>::iterator iter;
-
-	// i : 위의 0 ~ 6에 해당
-	for (int i = 0; i < ListOfAPIsets.size(); i++) {
-
-		iter = ListOfAPIsets[i].find(s);
-		if (iter != ListOfAPIsets[i].end()) {
-
-			if (CountingOfAPIsOfPid[pid].empty()) {
-				Init_CountingOfAPIsOfPid(pid);
-			}
-
-			CountingOfAPIsOfPid[pid][i]++;
-
-			break;
-		}
+	if (isKeyLogger == 1) {
+		probability = std::wstring(L"90%");
 	}
-}
-
-// 얘가 악성인지 판단
-bool check_condition(DWORD pid)
-{
-	int cnt_set = 0; // 몇 개의 목록이 만족하는지 체크
-
-	for (int i = 0; i < CountingOfAPIsOfPid[pid].size(); i++) {
-
-		// i번째 목록에 대해 조건 만족하는지 체크
-		// 조건 = i번째 목록의 전체 api 개수 중 절반 이상인지
-		if (CountingOfAPIsOfPid[pid][i] >= (SizeOfAPIsets[i] / 2)) {
-			cnt_set++;
-		}
+	else if (isKeyLogger == 2) {
+		probability = std::wstring(L"70%");
 	}
-
-	if (cnt_set >= (SizeOfAPIsets.size() / 2)) {
-		return true;
+	else if (isKeyLogger == 3) {
+		probability = std::wstring(L"50%");
 	}
 	else
-		return false;
-}
+		return;
 
-bool isKeyLogger(DWORD pid)
-{
-	// logs[pid] 는 중복 없는 vector of strings
-	int idx = IdxOfVecOfPid[pid];
+	printf("[%d] is key logger\n", pid);
 
-	for (int i = idx; i < logs[pid].size(); i++) {
-		
-		std::string str = logs[pid][i];
+	wsprintf(result, L" 악성 파일로 예상됩니다. (확률 : %ls)\n 파일 이름 : %ls \n 해당 파일을 허용하시겠습니까?\n ", probability.c_str(), ws.c_str());
 
-		if (str.back() == 'W' || str.back() == 'A') {
-			logs[pid][i] = str.substr(0, str.size() - 1);
-		}
+	int input = MessageBox(NULL, result, L"Detected", MB_YESNO);
+	int pid_ = (int)pid;
 
-		CountAPI(str, pid);
-
-		bool check = check_condition(pid);
-
-		if (check) {
-			Init_IdxOfVecPid(pid);
-			Init_CountingOfAPIsOfPid(pid);
-			return true;
-		}
+	if (input == IDNO) {
+		MessageBox(NULL, L"해당 파일을 차단하였습니다.\n", L"차단", MB_OK);
+		check_index_of_scenario[pid_] = { 0, 0, 0 };
+		check_by_user[pid_] = true;
+		malware_check[pid_] = { false, false, false };
+		check_count[pid_] = 0;
+		logs[pid_] = "";
 	}
-
-	IdxOfVecOfPid[pid] += ((int)(logs[pid].size()) - idx);
-	return false;
+	if (input == IDYES) {
+		MessageBox(NULL, L"해당 파일을 허용하였습니다.\n", L"허용", MB_OK);
+		if (malware_check[pid_].check1 == true) {
+			malware_check[pid_].check1 = false;
+			check_index_of_scenario[pid_].idx1 = 0;
+		}
+		if (malware_check[pid_].check2 == true) {
+			malware_check[pid_].check2 = false;
+			check_index_of_scenario[pid_].idx2 = 0;
+		}
+		if (malware_check[pid_].check3 == true) {
+			malware_check[pid_].check3 = false;
+			check_index_of_scenario[pid_].idx3 = 0;
+		}
+		check_by_user[pid_] = false;
+		check_count[pid_]++;
+	}
+	return;
 }
 
 int _tmain(int argc, _TCHAR* argv[])
 {
 
 	DWORD errorCode = 0;
-
-
-	//OpenMutex(MUTEX_ALL_ACCESS, FALSE, L"DBWinMutex");
-
-	/*
-	SECURITY_DESCRIPTOR     sdopen;
-
-	InitializeSecurityDescriptor(&sdopen,SECURITY_DESCRIPTOR_REVISION);
-	SetSecurityDescriptorDacl(&sdopen, TRUE, NULL, FALSE);
-
-	SECURITY_ATTRIBUTES     sa;
-	ZeroMemory(&sa, sizeof sa);
-
-	sa.nLength = sizeof sa;
-	sa.lpSecurityDescriptor = &sdopen;
-	sa.bInheritHandle = FALSE;
-
-	if ((hMutex = CreateMutex(&sa, FALSE, L"DBWinMutex")) == 0)
-	{
-
-	errorCode = GetLastError();
-	printf("createmutex error %d", errorCode);
-	return errorCode;
-	}
-	*/
-
 
 	hEventBufferReady = OpenEvent(EVENT_ALL_ACCESS, FALSE, L"DBWIN_BUFFER_READY");
 	if (hEventBufferReady == NULL) {
@@ -281,9 +211,6 @@ int _tmain(int argc, _TCHAR* argv[])
 	// 행 별로 0번째에 해당 process 경로 (이름 포함), 1번째에 해당 pid 2번째부터 api 이름
 	std::ofstream writeFile;
 	writeFile.open("logs.csv");
-	//writeFile.open("logs.txt");
-	MakeVectorAboutAPIsets();
-	Init_check();
 
 	while (isRunning)
 	{
@@ -291,31 +218,23 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		if (mb == WAIT_OBJECT_0) {
 
-			HANDLE terminate_handle = OpenProcess(SYNCHRONIZE | PROCESS_TERMINATE, TRUE, pDBBuffer->dwProcessId);
-
-			int ProcessId = (int)(pDBBuffer->dwProcessId);
-
-			if ((malware_check[ProcessId] == false) && (pid_check[ProcessId] == true)) {
-				try {
-					// 악성코드 아닌 것이라 판정된 pid
-					CloseHandle(terminate_handle);
-					SetEvent(hEventBufferReady);
-				}
-				catch (int exception) {
-					printf("terminate handle error!!!\n");
-				}
+			int pid = pDBBuffer->dwProcessId;
+			
+			if (check_count[pid] >= 3) // no malware by user 3 times check
 				continue;
-			}
 
-			if ((malware_check[ProcessId] == true) && (pid_check[ProcessId] == true)) {
+			if (check_by_user[pid] == true) { // malware
+				HANDLE terminate_handle = OpenProcess(SYNCHRONIZE | PROCESS_TERMINATE, TRUE, pDBBuffer->dwProcessId);
 				try {
-					// 악성코드인지 한 번 체크된 pid
 					TerminateProcess(terminate_handle, 0);
+					printf("[%d] terminate\n", pid);
 					CloseHandle(terminate_handle);
 					SetEvent(hEventBufferReady);
 				}
-				catch (int exception) {
-					printf("kill error!!!!\n");
+				catch(int exception){
+					printf("kill error!!!\n");
+					CloseHandle(terminate_handle);
+					SetEvent(hEventBufferReady);
 				}
 				continue;
 			}
@@ -324,7 +243,8 @@ int _tmain(int argc, _TCHAR* argv[])
 				HANDLE process_handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pDBBuffer->dwProcessId);
 
 				Get_API(pDBBuffer->dwProcessId, pDBBuffer->data);
-				printf("[%d] %s\n", pDBBuffer->dwProcessId, pDBBuffer->data);
+				//printf("[%d] %s\n", pDBBuffer->dwProcessId, pDBBuffer->data);
+				printf("[%d] %s\n", pid, logs[pid].c_str());
 
 				wchar_t buffer[MAX_PATH] = {};
 				DWORD buffer_size = MAX_PATH;
@@ -336,48 +256,57 @@ int _tmain(int argc, _TCHAR* argv[])
 					if (QueryFullProcessImageNameW(process_handle, 0, buffer, &buffer_size)) {
 						ws = std::wstring(buffer);
 						str = std::string(ws.begin(), ws.end());
+
 						writeFile << str << ',' << pDBBuffer->dwProcessId << ',';
-						
-						for (auto api_name : logs[pDBBuffer->dwProcessId]) {
-							writeFile << api_name << ',';
-						}
-						writeFile << '\n';
+						writeFile << logs[pid] << '\n';
 					}
 				}
 
-				bool keylogger_check = isKeyLogger(pDBBuffer->dwProcessId);
-				
-				if ((keylogger_check == true) && (malware_check[ProcessId] == false)) {
-					printf("[%d] is key logger\n", pDBBuffer->dwProcessId);
+				int idx_scenario1 = check_index_of_scenario[pid].idx1;
+				int idx_scenario2 = check_index_of_scenario[pid].idx2;
+				int idx_scenario3 = check_index_of_scenario[pid].idx3;
 
-					wchar_t result[512];
-					wsprintf(result, L" 악성 파일로 예상됩니다.\n 파일 이름 : %ls\n 해당 파일을 허용하시겠습니까?\n", ws.c_str());
-					int input = MessageBox(NULL, result, L"Detected", MB_YESNO);
-					if (input == IDNO) {
-						MessageBox(NULL, L"해당 파일을 차단하였습니다.", L"차단", MB_OK);
-						malware_check[ProcessId] = true;
-						pid_check[ProcessId] = true;
-						TerminateProcess(terminate_handle, 0);
-						CloseHandle(process_handle);
-						SetEvent(hEventBufferReady);
-						printf("kill [%d]\n", pDBBuffer->dwProcessId);
-					}
-					if (input == IDYES) {
-						MessageBox(NULL, L"해당 파일을 허용하였습니다.", L"허용", MB_OK);
-						malware_check[ProcessId] = false;
-						pid_check[ProcessId] = true;
-						CloseHandle(process_handle);
-						SetEvent(hEventBufferReady);
-					}
+				std::string called_api = logs[pid];
+
+				// index check
+				if (scenario1[idx_scenario1] == called_api) {
+					idx_scenario1++;
+				}
+				if (scenario2[idx_scenario2] == called_api) {
+					idx_scenario2++;
+				}
+				if (scenario3[idx_scenario3] == called_api) {
+					idx_scenario3++;
 				}
 
-				CloseHandle(process_handle);
+				// malware check
+				if (idx_scenario1 == scenario1_size) {
+					malware_check[pid].check1 = true;
+				}
+				if (idx_scenario2 == scenario2_size) {
+					malware_check[pid].check2 = true;
+				}
+				if (idx_scenario3 == scenario3_size) {
+					malware_check[pid].check3 = true;
+				}
+
+				check_index_of_scenario[pid] = { idx_scenario1, idx_scenario2, idx_scenario3 };
+
+				int isKeyLogger = KeyLogger_check(pDBBuffer->dwProcessId);
+
+				if (isKeyLogger == 0) {
+					// no key logger
+					CloseHandle(process_handle);
+				}
+				else {
+					MessageBox_and_KeyLogger_check(pDBBuffer->dwProcessId, isKeyLogger, ws);
+					CloseHandle(process_handle);
+				}
 			}
 			catch (int exception) {
 				writeFile << "error" << '\n';
 			}
 
-			CloseHandle(terminate_handle);
 			SetEvent(hEventBufferReady);
 		}
 	}

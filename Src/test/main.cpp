@@ -15,6 +15,7 @@ void DebugLog(const char* format, ...)
     OutputDebugStringA(szLog);
 }
 
+
 int main(int argc, char* argv[]) {
     if (argc != 2) {
         printf("\n Usage  : test.exe <filename>\n\n");

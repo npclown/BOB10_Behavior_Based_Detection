@@ -49,7 +49,7 @@ VOID WINAPI NewGetNativeSystemInfo(
 VOID WINAPI NewOutputDebugStringA(
     _In_opt_ LPCSTR lpOutputString
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"OutputDebugStringA");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"OutputDebugString");
 
     unhook_by_code("kernel32.dll", "OutputDebugStringA", OutputDebugStringAOrgFPA);
     OutputDebugStringA(lpOutputString);

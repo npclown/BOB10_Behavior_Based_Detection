@@ -58,7 +58,7 @@ BOOL WINAPI NewSetFileAttributesW(
     LPCWSTR lpFileName,
     DWORD   dwFileAttributes
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"SetFileAttributesW");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"SetFileAttributes");
     unhook_by_code("kernel32.dll", "SetFileAttributesW", SetFileAttributesWOrgFP);
 
     BOOL ret = SetFileAttributesW(
@@ -77,7 +77,7 @@ DWORD WINAPI NweSearchPathW(
     LPWSTR  lpBuffer,
     LPWSTR* lpFilePart
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"SearchPathW");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"SearchPath");
     unhook_by_code("kernel32.dll", "SearchPathW", SearchPathWOrgFP);
 
     BOOL ret = SearchPathW(
@@ -95,7 +95,7 @@ DWORD WINAPI NweSearchPathW(
 BOOL WINAPI NewRemoveDirectoryW(
     LPCWSTR lpPathName
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"RemoveDirectoryW");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"RemoveDirectory");
     unhook_by_code("kernel32.dll", "RemoveDirectoryW", RemoveDirectoryWOrgFP);
 
     BOOL ret = RemoveDirectoryW(
@@ -112,7 +112,7 @@ BOOL WINAPI NewMoveFileWithProgressW(
     LPVOID             lpData,
     DWORD              dwFlags
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"MoveFileWithProgressW");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"MoveFileWithProgress");
     unhook_by_code("kernel32.dll", "MoveFileWithProgressW", MoveFileWithProgressWOrgFp);
 
     BOOL ret = MoveFileWithProgressW(
@@ -131,7 +131,7 @@ BOOL WINAPI NewGetVolumePathNameW(
     LPWSTR  lpszVolumePathName,
     DWORD   cchBufferLength
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"GetVolumePathNameW");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"GetVolumePathName");
     unhook_by_code("kernel32.dll", "GetVolumePathNameW", GetVolumePathNameWOrgFP);
 
     BOOL ret = GetVolumePathNameW(
@@ -149,7 +149,7 @@ BOOL WINAPI NewGetVolumePathNamesForVolumeNameW(
     DWORD   cchBufferLength,
     PDWORD  lpcchReturnLength
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"GetVolumePathNamesForVolumeNameW");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"GetVolumePathNamesForVolumeName");
     unhook_by_code("kernel32.dll", "GetVolumePathNamesForVolumeNameW", GetVolumePathNamesForVolumeNameWOrgFP);
 
     BOOL ret = GetVolumePathNamesForVolumeNameW(
@@ -167,7 +167,7 @@ BOOL WINAPI NewGetVolumeNameForVolumeMountPointW(
     LPWSTR  lpszVolumeName,
     DWORD   cchBufferLength
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"GetVolumeNameForVolumeMountPointW");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"GetVolumeNameForVolumeMountPoint");
     unhook_by_code("kernel32.dll", "GetVolumeNameForVolumeMountPointW", GetVolumeNameForVolumeMountPointWOrgFP);
 
     BOOL ret = GetVolumeNameForVolumeMountPointW(
@@ -183,7 +183,7 @@ UINT WINAPI NewGetSystemWindowsDirectoryW(
     LPWSTR lpBuffer,
     UINT   uSize
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"GetSystemWindowsDirectoryW");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"GetSystemWindowsDirectory");
     unhook_by_code("kernel32.dll", "GetSystemWindowsDirectoryW", GetSystemWindowsDirectoryWOrgFP);
 
     BOOL ret = GetSystemWindowsDirectoryW(
@@ -198,7 +198,7 @@ UINT WINAPI NewGetSystemDirectoryW(
     LPWSTR lpBuffer,
     UINT   uSize
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"GetSystemDirectoryW");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"GetSystemDirectory");
     unhook_by_code("kernel32.dll", "GetSystemDirectoryW", GetSystemDirectoryWOrgFP);
 
     BOOL ret = GetSystemDirectoryW(
@@ -213,7 +213,7 @@ UINT WINAPI NewGetSystemDirectoryA(
     LPSTR lpBuffer,
     UINT  uSize
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"GetSystemDirectoryA");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"GetSystemDirectory");
     unhook_by_code("kernel32.dll", "GetSystemDirectoryA", GetSystemDirectoryAOrgFP);
 
     BOOL ret = GetSystemDirectoryA(
@@ -229,7 +229,7 @@ DWORD WINAPI NewGetShortPathNameW(
     LPWSTR  lpszShortPath,
     DWORD   cchBuffer
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"GetShortPathNameW");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"GetShortPathName");
     unhook_by_code("kernel32.dll", "GetShortPathNameW", GetShortPathNameWOrgFP);
 
     BOOL ret = GetShortPathNameW(
@@ -276,7 +276,7 @@ BOOL WINAPI NewGetFileInformationByHandleEx(
     LPVOID                    lpFileInformation,
     DWORD                     dwBufferSize
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"GetFileInformationByHandleEx");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"GetFileInformationByHandle");
     unhook_by_code("kernel32.dll", "GetFileInformationByHandleEx", GetFileInformationByHandleExOrgFP);
 
     BOOL ret = GetFileInformationByHandleEx(
@@ -298,7 +298,7 @@ HANDLE WINAPI NewCreateFileW(
     _In_ DWORD dwFlagsAndAttributes,
     _In_opt_ HANDLE hTemplateFile
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"CreateFileW");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"CreateFile");
     unhook_by_code("kernel32.dll", "CreateFileW", CreateFileOrgFPW);
 
     if (dwDesiredAccess & (GENERIC_ALL | GENERIC_WRITE | WRITE_OWNER)) {
@@ -347,7 +347,7 @@ HANDLE WINAPI NewCreateFileA(
     _In_ DWORD dwFlagsAndAttributes,
     _In_opt_ HANDLE hTemplateFile
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"CreateFileA");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"CreateFile");
     unhook_by_code("kernel32.dll", "CreateFileA", CreateFileOrgFPA);
 
     if (dwDesiredAccess & (GENERIC_ALL | GENERIC_WRITE | WRITE_OWNER)) {
@@ -390,7 +390,7 @@ HANDLE WINAPI NewCreateFileA(
 BOOL WINAPI NewDeleteFileW(
     _In_ LPCWSTR lpFileName
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"DeleteFileW");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"DeleteFile");
     unhook_by_code("kernel32.dll", "DeleteFileW", DeleteFileOrgFPW);
 
     BOOL ret = DeleteFileW(lpFileName);
@@ -402,7 +402,7 @@ BOOL WINAPI NewDeleteFileW(
 BOOL WINAPI NewDeleteFileA(
     _In_ LPCSTR lpFileName
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"DeleteFileA");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"DeleteFile");
     unhook_by_code("kernel32.dll", "DeleteFileA", DeleteFileOrgFPA);
 
     BOOL ret = DeleteFileA(lpFileName);
@@ -455,7 +455,7 @@ BOOL WINAPI NewCreateDirectoryW(
     _In_ LPCWSTR lpPathName,
     _In_opt_ LPSECURITY_ATTRIBUTES lpSecurityAttributes
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"CreateDirectoryW");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"CreateDirectory");
     unhook_by_code("kernel32.dll", "CreateDirectoryW", CreateDirectoryOrgFPW);
 
     BOOL ret = CreateDirectoryW(lpPathName,
@@ -469,7 +469,7 @@ BOOL WINAPI NewCreateDirectoryA(
     _In_ LPCSTR lpPathName,
     _In_opt_ LPSECURITY_ATTRIBUTES lpSecurityAttributes
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"CreateDirectoryA");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"CreateDirectory");
     unhook_by_code("kernel32.dll", "CreateDirectoryA", CreateDirectoryOrgFPA);
 
     BOOL ret = CreateDirectoryA(lpPathName,
@@ -484,7 +484,7 @@ BOOL WINAPI NewCopyFileW(
     _In_ LPCWSTR lpNewFileName,
     _In_ BOOL bFailIfExists
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"CopyFileW");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"CopyFile");
     unhook_by_code("kernel32.dll", "CopyFileW", CopyFileOrgFPW);
 
     BOOL ret = CopyFileW(lpExistingFileName,
@@ -500,7 +500,7 @@ BOOL WINAPI NewCopyFileA(
     _In_ LPCSTR lpNewFileName,
     _In_ BOOL bFailIfExists
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"CopyFileA");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"CopyFile");
     unhook_by_code("kernel32.dll", "CopyFileA", CopyFileOrgFPA);
 
     BOOL ret = CopyFileA(lpExistingFileName,
@@ -515,7 +515,7 @@ DWORD WINAPI NewGetTempPathW(
     _In_ DWORD nBufferLength,
     _Out_writes_to_opt_(nBufferLength, return +1) LPWSTR lpBuffer
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"GetTempPathW");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"GetTempPath");
     unhook_by_code("kernel32.dll", "GetTempPathW", GetTempPathOrgFPW);
 
     DWORD ret = GetTempPathW(nBufferLength,
@@ -529,7 +529,7 @@ DWORD WINAPI NewGetTempPathA(
     _In_ DWORD nBufferLength,
     _Out_writes_to_opt_(nBufferLength, return +1) LPSTR lpBuffer
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"GetTempPathA");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"GetTempPath");
     unhook_by_code("kernel32.dll", "GetTempPathA", GetTempPathOrgFPA);
 
     DWORD ret = GetTempPathA(nBufferLength,
@@ -543,7 +543,7 @@ HANDLE WINAPI NewFindFirstFileW(
     _In_ LPCWSTR lpFileName,
     _Out_ LPWIN32_FIND_DATAW lpFindFileData
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"FindFirstFileW");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"FindFirstFile");
     unhook_by_code("kernel32.dll", "FindFirstFileW", FindFirstFileOrgFPW);
 
     HANDLE ret = FindFirstFileW(lpFileName,
@@ -557,7 +557,7 @@ HANDLE WINAPI NewFindFirstFileA(
     _In_ LPCSTR lpFileName,
     _Out_ LPWIN32_FIND_DATAA lpFindFileData
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"FindFirstFileA");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"FindFirstFile");
     unhook_by_code("kernel32.dll", "FindFirstFileA", FindFirstFileOrgFPA);
 
     HANDLE ret = FindFirstFileA(lpFileName,
@@ -570,7 +570,7 @@ HANDLE WINAPI NewFindFirstFileA(
 DWORD WINAPI NewGetFileAttributesW(
     _In_ LPCWSTR lpFileName
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"GetFileAttributesW");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"GetFileAttributes");
     unhook_by_code("kernel32.dll", "GetFileAttributesW", GetFileAttributesOrgFPW);
 
     DWORD ret = GetFileAttributesW(lpFileName);
@@ -582,7 +582,7 @@ DWORD WINAPI NewGetFileAttributesW(
 DWORD WINAPI NewGetFileAttributesA(
     _In_ LPCSTR lpFileName
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"GetFileAttributesA");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"GetFileAttributes");
     unhook_by_code("kernel32.dll", "GetFileAttributesA", GetFileAttributesOrgFPA);
 
     DWORD ret = GetFileAttributesA(lpFileName);
@@ -643,7 +643,7 @@ HANDLE WINAPI NewFindFirstFileExW(
     _Reserved_ LPVOID lpSearchFilter,
     _In_ DWORD dwAdditionalFlags
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"FindFirstFileExW");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"FindFirstFile");
     unhook_by_code("kernel32.dll", "FindFirstFileExW", FindFirstFileExWOrgFPW);
 
     HANDLE ret = FindFirstFileExW(lpFileName,

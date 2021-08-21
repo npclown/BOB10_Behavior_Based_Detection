@@ -56,7 +56,7 @@ BOOL WINAPI NewGetComputerNameA(
 	_Out_writes_to_opt_(*nSize, *nSize + 1) LPSTR lpBuffer,
 	_Inout_ LPDWORD nSize
 ) {
-	DebugLog("%d %ls", GetCurrentProcessId(), L"GetComputerNameA");
+	DebugLog("%d %ls", GetCurrentProcessId(), L"GetComputerName");
 	unhook_by_code("kernel32.dll", "GetComputerNameA", OrgGCA);
 
 	BOOL GCA_handle = GetComputerNameA(lpBuffer, nSize);
@@ -68,7 +68,7 @@ BOOL WINAPI NewGetComputerNameW(
 	_Out_writes_to_opt_(*nSize, *nSize + 1) LPWSTR lpBuffer,
 	_Inout_ LPDWORD nSize
 ) {
-	DebugLog("%d %ls", GetCurrentProcessId(), L"GetComputerNameW");
+	DebugLog("%d %ls", GetCurrentProcessId(), L"GetComputerName");
 	unhook_by_code("kernel32.dll", "GetComputerNameW", OrgGCW);
 
 	BOOL GCW_handle = GetComputerNameW(lpBuffer, nSize);
@@ -86,7 +86,7 @@ BOOL WINAPI NewGetDiskFreeSpaceA(
 	_Out_opt_ LPDWORD lpNumberOfFreeClusters,
 	_Out_opt_ LPDWORD lpTotalNumberOfClusters
 ) {
-	DebugLog("%d %ls", GetCurrentProcessId(), L"GetDiskFreeSpaceA");
+	DebugLog("%d %ls", GetCurrentProcessId(), L"GetDiskFreeSpace");
 	unhook_by_code("kernel32.dll", "GetDiskFreeSpaceA", OrgGDA);
 
 
@@ -109,7 +109,7 @@ BOOL WINAPI NewGetDiskFreeSpaceW(
 	_Out_opt_ LPDWORD lpNumberOfFreeClusters,
 	_Out_opt_ LPDWORD lpTotalNumberOfClusters
 ) {
-	DebugLog("%d %ls", GetCurrentProcessId(), L"GetDiskFreeSpaceW");
+	DebugLog("%d %ls", GetCurrentProcessId(), L"GetDiskFreeSpace");
 	unhook_by_code("kernel32.dll", "GetDiskFreeSpaceW", OrgGDW);
 
 	BOOL GDW_handle = GetDiskFreeSpaceW(
@@ -132,7 +132,7 @@ BOOL WINAPI NewWriteConsoleA(
 	_Out_opt_ LPDWORD lpNumberOfCharsWritten,
 	_Reserved_ LPVOID lpReserved
 ) {
-	DebugLog("%d %ls", GetCurrentProcessId(), L"WriteConsoleA");
+	DebugLog("%d %ls", GetCurrentProcessId(), L"WriteConsole");
 	unhook_by_code("kernel32.dll", "WriteConsoleA", WriteConsoleAOrgFPA);
 
 	BOOL ret = WriteConsoleA(hConsoleOutput,
@@ -153,7 +153,7 @@ BOOL WINAPI NewWriteConsoleW(
 	_Out_opt_ LPDWORD lpNumberOfCharsWritten,
 	_Reserved_ LPVOID lpReserved
 ) {
-	DebugLog("%d %ls", GetCurrentProcessId(), L"WriteConsoleW");
+	DebugLog("%d %ls", GetCurrentProcessId(), L"WriteConsole");
 	unhook_by_code("kernel32.dll", "WriteConsoleW", WriteConsoleWOrgFPW);
 
 	BOOL ret = WriteConsoleW(hConsoleOutput,

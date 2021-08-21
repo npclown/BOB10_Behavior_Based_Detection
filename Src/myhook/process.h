@@ -82,7 +82,7 @@ BOOL WINAPI NewModule32FirstW(
     HANDLE hSnapshot,
     LPMODULEENTRY32W lpme
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"Module32FirstW");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"Module32First");
     unhook_by_code("kernel32.dll", "Module32FirstW", Module32FirstWOrgFPW);
 
     BOOL ret = Module32FirstW(hSnapshot,
@@ -95,7 +95,7 @@ BOOL WINAPI NewModule32NextW(
     HANDLE hSnapshot,
     LPMODULEENTRY32W lpme
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"Module32NextW");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"Module32Next");
     unhook_by_code("kernel32.dll", "Module32NextW", Module32NextWOrgFPW);
 
     BOOL ret = Module32NextW(hSnapshot,
@@ -108,7 +108,7 @@ BOOL WINAPI NewProcess32FirstW(
     HANDLE hSnapshot,
     LPPROCESSENTRY32W lppe
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"Process32FirstW");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"Process32First");
     unhook_by_code("kernel32.dll", "Process32FirstW", Process32FirstWOrgFPW);
 
     BOOL ret = Process32FirstW(hSnapshot,
@@ -121,7 +121,7 @@ BOOL WINAPI NewProcess32NextW(
     HANDLE hSnapshot,
     LPPROCESSENTRY32W lppe
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"Process32NextW");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"Process32Next");
     unhook_by_code("kernel32.dll", "Process32NextW", Process32NextWOrgFPW);
 
     BOOL ret = Process32NextW(hSnapshot,

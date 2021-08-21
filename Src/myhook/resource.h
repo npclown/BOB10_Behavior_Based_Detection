@@ -46,7 +46,7 @@ HANDLE WINAPI NewFindResourceA( //FindResourceA -> winbase.h
 	_In_     LPCSTR lpName,
 	_In_     LPCSTR lpType
 ) {
-	DebugLog("%d %ls", GetCurrentProcessId(), L"FindResourceA");
+	DebugLog("%d %ls", GetCurrentProcessId(), L"FindResource");
 	unhook_by_code("kernel32.dll", "FindResourceA", OrgFRA);
 
 	HANDLE FRA_handle = FindResourceA(hModule, lpName, lpType);
@@ -60,7 +60,7 @@ HANDLE WINAPI NewFindResourceW( //FindResourceW -> libloaderapi.h
 	_In_ LPCWSTR lpName,
 	_In_ LPCWSTR lpType
 ) {
-	DebugLog("%d %ls", GetCurrentProcessId(), L"FindResourceW");
+	DebugLog("%d %ls", GetCurrentProcessId(), L"FindResource");
 	unhook_by_code("kernel32.dll", "FindResourceW", OrgFRW);
 
 	HANDLE FRW_handle = FindResourceW(hModule, lpName, lpType);
@@ -105,7 +105,7 @@ HRSRC WINAPI NewFindResourceExA(
 	_In_     LPCSTR lpName,
 	_In_     WORD    wLanguage
 ) {
-	DebugLog("%d %ls", GetCurrentProcessId(), L"FindResourceExA");
+	DebugLog("%d %ls", GetCurrentProcessId(), L"FindResource");
 	unhook_by_code("kernel32.dll", "FindResourceExA", FindResourceExAOrgFPA);
 
 	HRSRC ret = FindResourceExA(hModule, 
@@ -123,7 +123,7 @@ HRSRC WINAPI NewFindResourceExW(
 	_In_ LPCWSTR lpName,
 	_In_ WORD wLanguage
 ) {
-	DebugLog("%d %ls", GetCurrentProcessId(), L"FindResourceExW");
+	DebugLog("%d %ls", GetCurrentProcessId(), L"FindResource");
 	unhook_by_code("kernel32.dll", "FindResourceExW", FindResourceExWOrgFPW);
 
 	HRSRC ret = FindResourceExW(hModule,

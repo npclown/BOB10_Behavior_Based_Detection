@@ -1,4 +1,4 @@
-﻿// debug_monitor.cpp : Defines the entry point for the console application.
+// debug_monitor.cpp : Defines the entry point for the console application.
 //
 
 #include "stdafx.h"

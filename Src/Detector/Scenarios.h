@@ -35,7 +35,7 @@ std::vector<std::string> Scenario1()
 	scenario.push_back("RegQueryValue");
 	scenario.push_back("CryptAcquireContext");
 	scenario.push_back("CryptGenRandom");
-	scenario.push_back("RegCreateKey");
+	//scenario.push_back("RegCreateKey");
 
 	return scenario;
 }
@@ -61,7 +61,7 @@ std::vector<std::string> Scenario2()
 	scenario.push_back("RegQueryValue");
 	scenario.push_back("CryptAcquireContext");
 	scenario.push_back("CryptGenRandom");
-	scenario.push_back("RegCreateKey");
+	//scenario.push_back("RegCreateKey");
 
 	return scenario;
 }
@@ -70,7 +70,7 @@ std::vector<std::string> Scenario3()
 {
 	std::vector<std::string> scenario;
 
-	scenario.push_back("LdrGetProcedureAddress");
+	//scenario.push_back("LdrGetProcedureAddress");
 	scenario.push_back("RegOpenKey");
 	scenario.push_back("RegQueryInfoKey");
 	scenario.push_back("RegEnumKey");

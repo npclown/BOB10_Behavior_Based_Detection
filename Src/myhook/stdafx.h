@@ -7,6 +7,9 @@
 #include <stdarg.h>
 #include <dllheader.h>
 #include <tlhelp32.h>
+#include <shlwapi.h>
+#include <Shlobj.h>
+#include <ntsecapi.h>
 
 #include "file.h"
 #include "resource.h"

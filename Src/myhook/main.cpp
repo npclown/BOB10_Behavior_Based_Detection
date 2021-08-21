@@ -110,14 +110,19 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 
         //etc.h
         hook_by_code("Advapi32.dll", "CryptAcquireContextW", (PROC)NewCryptAcquireContextW, CryptAcquireContextWOrgFPW);
-        hook_by_code("Kernel32.dll", "HeapCreate", (PROC)NewHeapCreate, HeapCreateOrgFP);
+        //hook_by_code("Kernel32.dll", "HeapCreate", (PROC)NewHeapCreate, HeapCreateOrgFP);
         hook_by_code("Kernel32.dll", "GetSystemTime", (PROC)NewGetSystemTime, GetSystemTimeOrgFP);
         hook_by_code("Advapi32.dll", "CryptGenRandom", (PROC)NewCryptGenRandom, CryptGenRandomOrgFP);
         hook_by_code("Kernel32.dll", "DeviceIoControl", (PROC)NewDeviceIoControl, DeviceIoControlOrgFP);
-        hook_by_code("Kernel32.dll", "VirtualProtectEx", (PROC)NewVirtualProtectEx, VirtualProtectExOrgFP);
+        //hook_by_code("Kernel32.dll", "VirtualProtectEx", (PROC)NewVirtualProtectEx, VirtualProtectExOrgFP);
         hook_by_code("Kernel32.dll", "GlobalMemoryStatus", (PROC)NewGlobalMemoryStatus, GlobalMemoryStatusOrgFP);
         hook_by_code("Kernel32.dll", "GlobalMemoryStatusEx", (PROC)NewGlobalMemoryStatusEx, GlobalMemoryStatusExOrgFP);
-
+        ////hook_by_code("Shlwapi.dll", "UrlCanonicalizeW", (PROC)NewUrlCanonicalizeW, UrlCanonicalizeWOrgFPW);
+        ////hook_by_code("Shlwapi.dll", "StrCmpNICW", (PROC)NewUrlCanonicalizeW, StrCmpNICWOrgFPW);
+        //hook_by_code("Shell32.dll", "SHGetFolderPathW", (PROC)NewSHGetFolderPathW, SHGetFolderPathWOrgFPW);
+        ////hook_by_code("Api-ms-win-core-version-l1-1-0.dll", "GetFileVersionInfoSizeW", (PROC)NewGetFileVersionInfoSizeW, GetFileVersionInfoSizeWOrgFPW);
+        //hook_by_code("Advapi32.dll", "LsaOpenPolicy", (PROC)NewLsaOpenPolicy, LsaOpenPolicyOrgFP);
+        ////hook_by_code("Api-ms-win-core-version-l1-1-0.dll", "GetFileVersionInfoW", (PROC)NewGetFileVersionInfoW, GetFileVersionInfoWOrgFPW);
         break;
     case DLL_PROCESS_DETACH:
         DebugLog("MyHook DLL_PROCESS_DETACH\n");
@@ -222,13 +227,19 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
         
         //etc.h
         unhook_by_code("Advapi32.dll", "CryptAcquireContextW", CryptAcquireContextWOrgFPW);
-        unhook_by_code("Kernel32.dll", "HeapCreate", HeapCreateOrgFP);
+        //unhook_by_code("Kernel32.dll", "HeapCreate", HeapCreateOrgFP);
         unhook_by_code("Kernel32.dll", "GetSystemTime", GetSystemTimeOrgFP);
         unhook_by_code("Advapi32.dll", "CryptGenRandom", CryptGenRandomOrgFP);
         unhook_by_code("Kernel32.dll", "DeviceIoControl", DeviceIoControlOrgFP);
-        unhook_by_code("Kernel32.dll", "VirtualProtectEx", VirtualProtectExOrgFP);
+        //unhook_by_code("Kernel32.dll", "VirtualProtectEx", VirtualProtectExOrgFP);
         unhook_by_code("Kernel32.dll", "GlobalMemoryStatus", GlobalMemoryStatusOrgFP);
         unhook_by_code("Kernel32.dll", "GlobalMemoryStatusEx", GlobalMemoryStatusExOrgFP);
+        ////unhook_by_code("Shlwapi.dll", "UrlCanonicalizeW", UrlCanonicalizeWOrgFPW);
+        ////unhook_by_code("Shlwapi.dll", "StrCmpNICW", StrCmpNICWOrgFPW);
+        //unhook_by_code("Shell32.dll", "SHGetFolderPathW", SHGetFolderPathWOrgFPW);
+        ////unhook_by_code("Api-ms-win-core-version-l1-1-0.dll", "GetFileVersionInfoSizeW", GetFileVersionInfoSizeWOrgFPW);
+        //unhook_by_code("Advapi32.dll", "LsaOpenPolicy", LsaOpenPolicyOrgFP);
+        ////unhook_by_code("Api-ms-win-core-version-l1-1-0.dll", "GetFileVersionInfoW", GetFileVersionInfoWOrgFPW);
         break;
     }
     return TRUE;

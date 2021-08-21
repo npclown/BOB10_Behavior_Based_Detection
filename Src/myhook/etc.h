@@ -21,7 +21,7 @@ BOOL WINAPI NewCryptAcquireContextW(
     _In_        DWORD       dwProvType,
     _In_        DWORD       dwFlags
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"CryptAcquireContextW");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"CryptAcquireContext");
     unhook_by_code("Advapi32.dll", "CryptAcquireContextW", CryptAcquireContextWOrgFPW);
 
     BOOL ret = CryptAcquireContextW(phProv,
@@ -105,7 +105,7 @@ BOOL WINAPI NewVirtualProtectEx(
     _In_ DWORD flNewProtect,
     _Out_ PDWORD lpflOldProtect
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"VirtualProtectEx");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"VirtualProtect");
     unhook_by_code("Kernel32.dll", "VirtualProtectEx", VirtualProtectExOrgFP);
 
     BOOL ret = VirtualProtectEx(hProcess,
@@ -130,7 +130,7 @@ VOID WINAPI NewGlobalMemoryStatus(
 VOID WINAPI NewGlobalMemoryStatusEx(
     _Out_ LPMEMORYSTATUSEX lpBuffer
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"GlobalMemoryStatusEx");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"GlobalMemoryStatus");
     unhook_by_code("Kernel32.dll", "GlobalMemoryStatusEx", GlobalMemoryStatusExOrgFP);
 
     GlobalMemoryStatusEx(lpBuffer);
@@ -162,7 +162,7 @@ VOID WINAPI NewGlobalMemoryStatusEx(
 HRESULT NewSHGetFolderPathW(
     _Reserved_ HWND hwnd, _In_ int csidl, _In_opt_ HANDLE hToken, _In_ DWORD dwFlags, _Out_writes_(MAX_PATH) LPWSTR pszPath
 ) {
-    DebugLog("%d %ls", GetCurrentProcessId(), L"SHGetFolderPathW");
+    DebugLog("%d %ls", GetCurrentProcessId(), L"SHGetFolderPath");
     unhook_by_code("Shell32.dll", "SHGetFolderPathW", SHGetFolderPathWOrgFPW);
 
     HRESULT ret = SHGetFolderPathW(hwnd, csidl, hToken, dwFlags, pszPath);

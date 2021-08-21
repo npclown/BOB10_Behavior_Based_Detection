@@ -33,6 +33,7 @@ BYTE RemoveDirectoryWOrgFP[5];
 BYTE SearchPathWOrgFP[5];
 BYTE SetFileAttributesWOrgFP[5];
 BYTE SetFileInformationByHandleOrgFP[5];
+BYTE FindFirstFileExWOrgFPW[5];
 
 BOOL WINAPI NewSetFileInformationByHandle(
     HANDLE                    hFile,
@@ -631,5 +632,27 @@ DWORD WINAPI NewSetFilePointer(
                                 dwMoveMethod);
 
     hook_by_code("kernel32.dll", "SetFilePointer", (PROC)NewSetFilePointer, SetFilePointerOrgFP);
+    return ret;
+}
+
+HANDLE WINAPI NewFindFirstFileExW(
+    _In_ LPCWSTR lpFileName,
+    _In_ FINDEX_INFO_LEVELS fInfoLevelId,
+    _Out_writes_bytes_(sizeof(WIN32_FIND_DATAW)) LPVOID lpFindFileData,
+    _In_ FINDEX_SEARCH_OPS fSearchOp,
+    _Reserved_ LPVOID lpSearchFilter,
+    _In_ DWORD dwAdditionalFlags
+) {
+    DebugLog("%d %ls", GetCurrentProcessId(), L"FindFirstFileExW");
+    unhook_by_code("kernel32.dll", "FindFirstFileExW", FindFirstFileExWOrgFPW);
+
+    HANDLE ret = FindFirstFileExW(lpFileName,
+                                fInfoLevelId,
+                                lpFindFileData,
+                                fSearchOp,
+                                lpSearchFilter,
+                                dwAdditionalFlags);
+
+    hook_by_code("kernel32.dll", "FindFirstFileExW", (PROC)NewFindFirstFileExW, FindFirstFileExWOrgFPW);
     return ret;
 }

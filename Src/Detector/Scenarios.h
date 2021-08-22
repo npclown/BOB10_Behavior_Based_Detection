@@ -84,6 +84,5 @@ std::vector<std::string> Scenario3()
 	scenario.push_back("GlobalMemoryStatus");
 	//scenario.push_back("GetFileVersionInfoSizeW");
 	//scenario.push_back("GetFileVersionInfoW");
-
 	return scenario;
 }

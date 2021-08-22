@@ -12,5 +12,6 @@
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Scenarios.h" />
   </ItemGroup>
 </Project>

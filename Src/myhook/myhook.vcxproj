@@ -167,10 +167,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="etc.h" />
     <ClInclude Include="process.h" />
     <ClInclude Include="exception.h" />
     <ClInclude Include="file.h" />
     <ClInclude Include="misc.h" />
+    <ClInclude Include="registery.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="synchronisation.h" />

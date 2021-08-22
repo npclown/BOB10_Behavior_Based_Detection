@@ -36,7 +36,8 @@ BYTE OrgGCA[5]; //NewGetComputerNameA
 BYTE OrgGCW[5]; //NewGetComputerNameW
 BYTE OrgGDA[5]; //GetDiskFreeSpaceA
 BYTE OrgGDW[5]; //GetDiskFreeSpaceW
-
+BYTE WriteConsoleAOrgFPA[5];
+BYTE WriteConsoleWOrgFPW[5];
 
 //Definition structure of GetTimeZoneInformation
 DWORD WINAPI NewGetTimeZoneInformation(
@@ -55,7 +56,7 @@ BOOL WINAPI NewGetComputerNameA(
 	_Out_writes_to_opt_(*nSize, *nSize + 1) LPSTR lpBuffer,
 	_Inout_ LPDWORD nSize
 ) {
-	DebugLog("%d %ls", GetCurrentProcessId(), L"GetComputerNameA");
+	DebugLog("%d %ls", GetCurrentProcessId(), L"GetComputerName");
 	unhook_by_code("kernel32.dll", "GetComputerNameA", OrgGCA);
 
 	BOOL GCA_handle = GetComputerNameA(lpBuffer, nSize);
@@ -67,7 +68,7 @@ BOOL WINAPI NewGetComputerNameW(
 	_Out_writes_to_opt_(*nSize, *nSize + 1) LPWSTR lpBuffer,
 	_Inout_ LPDWORD nSize
 ) {
-	DebugLog("%d %ls", GetCurrentProcessId(), L"GetComputerNameW");
+	DebugLog("%d %ls", GetCurrentProcessId(), L"GetComputerName");
 	unhook_by_code("kernel32.dll", "GetComputerNameW", OrgGCW);
 
 	BOOL GCW_handle = GetComputerNameW(lpBuffer, nSize);
@@ -85,7 +86,7 @@ BOOL WINAPI NewGetDiskFreeSpaceA(
 	_Out_opt_ LPDWORD lpNumberOfFreeClusters,
 	_Out_opt_ LPDWORD lpTotalNumberOfClusters
 ) {
-	DebugLog("%d %ls", GetCurrentProcessId(), L"GetDiskFreeSpaceA");
+	DebugLog("%d %ls", GetCurrentProcessId(), L"GetDiskFreeSpace");
 	unhook_by_code("kernel32.dll", "GetDiskFreeSpaceA", OrgGDA);
 
 
@@ -108,7 +109,7 @@ BOOL WINAPI NewGetDiskFreeSpaceW(
 	_Out_opt_ LPDWORD lpNumberOfFreeClusters,
 	_Out_opt_ LPDWORD lpTotalNumberOfClusters
 ) {
-	DebugLog("%d %ls", GetCurrentProcessId(), L"GetDiskFreeSpaceW");
+	DebugLog("%d %ls", GetCurrentProcessId(), L"GetDiskFreeSpace");
 	unhook_by_code("kernel32.dll", "GetDiskFreeSpaceW", OrgGDW);
 
 	BOOL GDW_handle = GetDiskFreeSpaceW(
@@ -122,4 +123,46 @@ BOOL WINAPI NewGetDiskFreeSpaceW(
 	hook_by_code("kernel32.dll", "GetDiskFreeSpaceW", (PROC)NewGetDiskFreeSpaceW, OrgGDW);
 
 	return GDW_handle;
+}
+
+BOOL WINAPI NewWriteConsoleA(
+	_In_ HANDLE hConsoleOutput,
+	_In_reads_(nNumberOfCharsToWrite) CONST VOID* lpBuffer,
+	_In_ DWORD nNumberOfCharsToWrite,
+	_Out_opt_ LPDWORD lpNumberOfCharsWritten,
+	_Reserved_ LPVOID lpReserved
+) {
+	DebugLog("%d %ls", GetCurrentProcessId(), L"WriteConsole");
+	unhook_by_code("kernel32.dll", "WriteConsoleA", WriteConsoleAOrgFPA);
+
+	BOOL ret = WriteConsoleA(hConsoleOutput,
+							lpBuffer,
+							nNumberOfCharsToWrite,
+							lpNumberOfCharsWritten,
+							lpReserved);
+
+	hook_by_code("kernel32.dll", "WriteConsoleA", (PROC)NewWriteConsoleA, WriteConsoleAOrgFPA);
+
+	return ret;
+}
+
+BOOL WINAPI NewWriteConsoleW(
+	_In_ HANDLE hConsoleOutput,
+	_In_reads_(nNumberOfCharsToWrite) CONST VOID* lpBuffer,
+	_In_ DWORD nNumberOfCharsToWrite,
+	_Out_opt_ LPDWORD lpNumberOfCharsWritten,
+	_Reserved_ LPVOID lpReserved
+) {
+	DebugLog("%d %ls", GetCurrentProcessId(), L"WriteConsole");
+	unhook_by_code("kernel32.dll", "WriteConsoleW", WriteConsoleWOrgFPW);
+
+	BOOL ret = WriteConsoleW(hConsoleOutput,
+							lpBuffer,
+							nNumberOfCharsToWrite,
+							lpNumberOfCharsWritten,
+							lpReserved);
+
+	hook_by_code("kernel32.dll", "WriteConsoleW", (PROC)NewWriteConsoleW, WriteConsoleWOrgFPW);
+
+	return ret;
 }

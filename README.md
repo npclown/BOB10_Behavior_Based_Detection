@@ -1,27 +1,62 @@
 ## BEHAVIOR_BASED_DETECTION
+
 ### Injector
-- explorer.exeì— globalhook.dllê³¼ myhook.dllì„ Injection, Ejectionì„ í•´ì£¼ëŠ” ë„êµ¬
+- Æ¯Á¤ ÇÁ·Î¼¼¼­¿¡ dllÀ» Injection, Ejection ½ÃÄÑÁÖ´Â µµ±¸
 
 ```
-ì‚¬ìš©ë²•
-
-Injection.exe -i explorer.exe globalhook.dll myhook.dll
+Injection.exe -i <process ¸í> <dll ¸í>
 ```
-
-### globalhook
-- global hookingì„ ìœ„í•´ ë§Œë“  dll 
-- ì ˆëŒ€ ê²½ë¡œë¥¼ ì ì–´ë‘ì§€ ì•Šì•„ ìœ„í•´ì„œ System32 ë””ë ‰í† ë¦¬ì— ë„£ì–´ì¤€ë‹¤.
-- CreateProcessAì™€ CreateProcessWë¥¼ Hooking í•˜ì—¬ ìì‹ í”„ë¡œì„¸ìŠ¤ë„ globalhook, myhookì´ ìë™ìœ¼ë¡œ Injectionì„ í•˜ë„ë¡ í•´ì¤€ë‹¤.
-
-### myhook
-- ì‚¬ìš©ìê°€ ì •ì˜í•œ API Hooking API
-- ì ˆëŒ€ ê²½ë¡œë¥¼ ì ì–´ë‘ì§€ ì•Šì•„ ìœ„í•´ì„œ System32 ë””ë ‰í† ë¦¬ì— ë„£ì–´ì¤€ë‹¤.
-- í˜„ì¬ CreateFileW, CreateFileAë¥¼ Hooking í•˜ì—¬, System32 í´ë”ì— íŒŒì¼ì„ ìƒì„±í•˜ê±°ë‚˜, ê·¸ ì™¸ì— í´ë”ì— sys íŒŒì¼ì„ ìƒì„±í•  ê²½ìš°, ì•Œë¦¼ì„ ì£¼ê³ , ì°¨ë‹¨ ì—¬ë¶€ë¥¼ ê²°ì •í•˜ê²Œ í•œë‹¤.
 
 ### detector
-- Hooking ì‹œ ë°œìƒí•˜ëŠ” OutputDebugStringAì˜ ë©”ì‹œì§€ë¥¼ í™œìš©í•˜ì—¬, ì—¬ëŸ¬ API ì¡°í•©ìœ¼ë¡œ ì´ë£¨ì–´ì§„ ì•…ì„±ì½”ë“œ API íŒ¨í„´ê³¼ ì¼ì¹˜í•˜ëŠ”ì§€ ë¹„êµí•˜ì—¬ í•´ë‹¹ í”„ë¡œì„¸ìŠ¤ê°€ ì•…ì„±í”„ë¡œì„¸ìŠ¤ë¼ê³  íŒë‹¨í•˜ë©´, ì•Œë¦¼ì„ í†µí•´ ì°¨ë‹¨ ì—¬ë¶€ë¥¼ ì‚¬ìš©ìê°€ ê²°ì •í•˜ê²Œ í•œë‹¤.
+- Hooking ÇÑ API¸¦ »ç¿ë½Ã ¹ß»ıÇÏ´Â debug log¸¦ ¹Ş¾Æ¼­, Æ¯Á¤ ÇÁ·Î¼¼½º°¡ ½Ã³ª¸®¿À¸¦ ¸¸Á·ÇÏ´ÂÁö ºñ±³ÇÏ¿©, ¾Ç¼º Å°·Î°Å¶ó°í ÆÇ´ÜµÇ¸é ¾Ë¸²À» ÅëÇØ Â÷´Ü ¿©ºÎ¸¦ »ç¿ëÀÚ¿¡°Ô ¾Ë·ÁÁÖ´Â ÇÁ·Î±×·¥
 
-#### ì¤€ì„±ì´ ì—¬ìì¹œêµ¬ êµ¬í•¨
+### globalhook
+- global hookingÀ» ¼öÇàÇÏ´Â dll
+- CreateProcessA,€ CreateProcessW¸¦ ÈÄÅ·ÇÏ¿©, ÀÚ½Ä ÇÁ·Î¼¼½º¿¡ globalhook.dll ¿Í myhook.dll ÀÌ ÀÚµ¿À¸·Î InjectionÀ» ½ÃÄÑÁÖµµ·Ï ÇÑ´Ù.
+
+### myhook
+- ÇàÀ§±â¹İ Å½Áö¿¡ ÇÊ¿äÇÑ API¸¦ ÈÄÅ·ÇÏ´Â dll
+
+### Implementation of Scenario Algorithm
+- ¾Ç¼ºÄÚµå ½Ã³ª¸®¿À¸¦ »ı¼ºÇÒ ¶§ »ç¿ë
+
+## Requirements
+- Windows7 32bit
+- Visual studio 2019
+
+## »ç¿ë¹ı
+- Clone from Github
+```
+git clone https://github.com/NPclown/BOB10_Behavior_Based_Detection.git
+cd BOB10_Behavior_Based_Detection
+cd src
+
+Build.sln ½ÇÇà
+```
+
+- Build ¼öÇà
+```
+x86À¸·Î ºôµå¸¦ ¼öÇà
+```
+
+- dll ÆÄÀÏ ÀÌµ¿
+```
+BOB10_Behavior_Based_Detection\Build\Debugx86
+BOB10_Behavior_Based_Detection\Build\Releasex86 
+
+ÇÏÀ§¿¡ »ı¼ºµÇ´Â globalhook.dll °ú myhook.dllÀ» C:\Windows\System32 ·Î ÀÌµ¿
+```
+
+- Detector ½ÇÇà
+
+- Injector ½ÇÇà
+```
+# ÀÎÁ§¼ÇÀ» ¼öÇàÇÒ ¶§
+Injector.exe -i explorer.exe globalhook.dll
+
+# ÀÌÁ§¼ÇÀ» ¼öÇàÇÒ ¶§
+Injector.exe -e explorer.exe globalhook.dll
+```
 
 
 

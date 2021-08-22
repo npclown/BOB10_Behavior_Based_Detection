@@ -199,12 +199,11 @@ int _tmain(int argc, TCHAR* argv[])
 
 		if (nMode) {
 			InjectDll(pid, argv[3]);
-			//InjectDll(pid, argv[4]);
 			printf("Injected\n");
 		}
 		else {
 			EjectAllProcess(argv[3]);
-			//EjectAllProcess(argv[4]);
+			EjectAllProcess(L"myhook.dll");
 			printf("Ejected\n");
 		}
 	}

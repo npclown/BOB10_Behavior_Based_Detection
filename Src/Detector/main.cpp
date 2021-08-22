@@ -2,16 +2,6 @@
 //
 
 #include "stdafx.h"
-#include <Windows.h>
-#include <stdio.h>
-#include <map>
-#include <set>
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <algorithm>
-#include "Scenarios.h"
 
 struct db_buffer
 {
@@ -38,7 +28,7 @@ typedef struct bool_of_malware_check {
 index_of_scenario check_index_of_scenario[32769]; // index of checking on scenarios
 bool check_by_user[32769]; // if it is true, then it must be malware why user checking
 bool_of_malware_check malware_check[32769]; // if it has one or more true, then it will be malware by scenario
-int check_count[32769]; 
+int check_count[32769];
 // if user click NO on message box, then other or same scenario will be call later, 
 // so if user click NO 3 times, then it must be not malware because of user clicking
 
@@ -58,7 +48,7 @@ void Get_API(DWORD pid, char* data)
 {
 	if (data == NULL)
 		return;
-	
+
 	std::string* str_data = new std::string("");
 	std::string* str_pid = new std::string("");
 
@@ -122,13 +112,13 @@ void MessageBox_and_KeyLogger_check(DWORD pid, int isKeyLogger, std::wstring ws)
 
 	printf("[%d] is key logger\n", pid);
 
-	wsprintf(result, L" ì•…ì„± íŒŒì¼ë¡œ ì˜ˆìƒë©ë‹ˆë‹¤. (í™•ë¥  : %ls)\n íŒŒì¼ ì´ë¦„ : %ls \n í•´ë‹¹ íŒŒì¼ì„ í—ˆìš©í•˜ì‹œê² ìŠµë‹ˆê¹Œ?\n ", probability.c_str(), ws.c_str());
+	wsprintf(result, L" ¾Ç¼º ÆÄÀÏ·Î ¿¹»óµË´Ï´Ù. (È®·ü : %ls)\n ÆÄÀÏ ÀÌ¸§ : %ls \n ÇØ´ç ÆÄÀÏÀ» Çã¿ëÇÏ½Ã°Ú½À´Ï±î?\n ", probability.c_str(), ws.c_str());
 
 	int input = MessageBox(NULL, result, L"Detected", MB_YESNO);
 	int pid_ = (int)pid;
 
 	if (input == IDNO) {
-		MessageBox(NULL, L"í•´ë‹¹ íŒŒì¼ì„ ì°¨ë‹¨í•˜ì˜€ìŠµë‹ˆë‹¤.\n", L"ì°¨ë‹¨", MB_OK);
+		MessageBox(NULL, L"ÇØ´ç ÆÄÀÏÀ» Â÷´ÜÇÏ¿´½À´Ï´Ù.\n", L"Â÷´Ü", MB_OK);
 		check_index_of_scenario[pid_] = { 0, 0, 0 };
 		check_by_user[pid_] = true;
 		malware_check[pid_] = { false, false, false };
@@ -136,7 +126,7 @@ void MessageBox_and_KeyLogger_check(DWORD pid, int isKeyLogger, std::wstring ws)
 		logs[pid_] = "";
 	}
 	if (input == IDYES) {
-		MessageBox(NULL, L"í•´ë‹¹ íŒŒì¼ì„ í—ˆìš©í•˜ì˜€ìŠµë‹ˆë‹¤.\n", L"í—ˆìš©", MB_OK);
+		MessageBox(NULL, L"ÇØ´ç ÆÄÀÏÀ» Çã¿ëÇÏ¿´½À´Ï´Ù.\n", L"Çã¿ë", MB_OK);
 		if (malware_check[pid_].check1 == true) {
 			malware_check[pid_].check1 = false;
 			check_index_of_scenario[pid_].idx1 = 0;
@@ -157,7 +147,6 @@ void MessageBox_and_KeyLogger_check(DWORD pid, int isKeyLogger, std::wstring ws)
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-
 	DWORD errorCode = 0;
 
 	hEventBufferReady = OpenEvent(EVENT_ALL_ACCESS, FALSE, L"DBWIN_BUFFER_READY");
@@ -207,8 +196,8 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	bool isRunning = true;
 
-	// csv íŒŒì¼ ë§Œë“¤ê¸° 
-	// í–‰ ë³„ë¡œ 0ë²ˆì§¸ì— í•´ë‹¹ process ê²½ë¡œ (ì´ë¦„ í¬í•¨), 1ë²ˆì§¸ì— í•´ë‹¹ pid 2ë²ˆì§¸ë¶€í„° api ì´ë¦„
+	// csv ÆÄÀÏ ¸¸µé±â 
+	// Çà º°·Î 0¹øÂ°¿¡ ÇØ´ç process °æ·Î (ÀÌ¸§ Æ÷ÇÔ), 1¹øÂ°¿¡ ÇØ´ç pid 2¹øÂ°ºÎÅÍ api ÀÌ¸§
 	std::ofstream writeFile;
 	writeFile.open("logs.csv");
 
@@ -219,7 +208,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		if (mb == WAIT_OBJECT_0) {
 
 			int pid = pDBBuffer->dwProcessId;
-			
+
 			if (check_count[pid] >= 3) // no malware by user 3 times check
 				continue;
 
@@ -231,14 +220,14 @@ int _tmain(int argc, _TCHAR* argv[])
 					CloseHandle(terminate_handle);
 					SetEvent(hEventBufferReady);
 				}
-				catch(int exception){
+				catch (int exception) {
 					printf("kill error!!!\n");
 					CloseHandle(terminate_handle);
 					SetEvent(hEventBufferReady);
 				}
 				continue;
 			}
-			
+
 			try {
 				HANDLE process_handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pDBBuffer->dwProcessId);
 
@@ -250,9 +239,9 @@ int _tmain(int argc, _TCHAR* argv[])
 				DWORD buffer_size = MAX_PATH;
 				std::wstring ws;
 				std::string str;
-				
+
 				if (process_handle) {
-					
+
 					if (QueryFullProcessImageNameW(process_handle, 0, buffer, &buffer_size)) {
 						ws = std::wstring(buffer);
 						str = std::string(ws.begin(), ws.end());
@@ -317,8 +306,6 @@ int _tmain(int argc, _TCHAR* argv[])
 	CloseHandle(hDBWINBuffer);
 	CloseHandle(hEventBufferReady);
 	CloseHandle(hEventDataReady);
-	//CloseHandle(hMutex);
-	//hMutex = 0;
 
 	return 0;
 }
